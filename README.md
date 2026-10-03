@@ -3,6 +3,18 @@
 Blockly-basierter Editor für OpenSCAD-Modelle mit Live-Codegenerierung,
 Rendering im Web Worker (openscad-wasm) und interaktiver 3D-Vorschau (Three.js).
 
+<p align="center">
+  <img src=".github/screenshots/editor-overview.png" width="800" alt="Blockly-Editor mit Live-3D-Vorschau">
+</p>
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Wandstärken-Heatmap](.github/screenshots/wandstaerken-heatmap.png) <br>Wandstärken-Heatmap | ![Querschnitt](.github/screenshots/querschnitt.png) <br>Querschnittsansicht |
+| ![Kollisionserkennung](.github/screenshots/kollisionserkennung.png) <br>Kollisionserkennung | ![Customizer](.github/screenshots/customizer.png) <br>Customizer mit Schiebereglern |
+| ![Dark Theme](.github/screenshots/dark-theme.png) <br>Dark Theme & mehrsprachiges UI | |
+
 ## Status
 
 Phasen 0–5 des Master-Prompts sind umgesetzt: Setup, Grundgerüst, Blockly-Editor
