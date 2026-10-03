@@ -1,0 +1,1691 @@
+:root {
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+
+  /* Default-Farbdesign (auch der Fallback, falls data-theme noch nicht gesetzt ist). */
+  --color-bg: #eceef1;
+  --color-surface: #ffffff;
+  --color-fg: #1a1a1a;
+  --color-border: #e0e1e6;
+  --color-hover: #00000010;
+  --color-shadow: #1a1a1a26;
+  --color-accent: #3b6fe0;
+  --color-danger: #d1453b;
+  --color-success: #2f9e44;
+  --radius-sm: 7px;
+  --radius-md: 12px;
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #131417;
+  --color-surface: #1f2023;
+  --color-fg: #e8e8ea;
+  --color-border: #303136;
+  --color-hover: #ffffff14;
+  --color-shadow: #00000066;
+  --color-accent: #6c9bff;
+  --color-danger: #ff6b6b;
+  --color-success: #4bd07d;
+}
+
+:root[data-theme='contrast'] {
+  --color-bg: #000000;
+  --color-surface: #000000;
+  --color-fg: #ffffff;
+  --color-border: #ffff00;
+  --color-hover: #ffff0033;
+  --color-shadow: #ffffff66;
+  --color-accent: #ffff00;
+  --color-danger: #ff5555;
+  --color-success: #00ff00;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--color-surface);
+  box-shadow:
+    0 1px 0 var(--color-border),
+    0 2px 10px var(--color-shadow);
+  /* Eigener Stacking-Context mit hohem z-index, damit das Menue ueber
+     Blocklys SVG-Rendering im Editor-Bereich liegt (Blockly bringt dort
+     eigene, teils hoch gestapelte Ebenen mit). */
+  position: relative;
+  z-index: 100;
+}
+
+.app-header h1 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+  flex: none;
+  white-space: nowrap;
+}
+
+/* Nimmt den restlichen Platz, schiebt alles Nachfolgende (rechte
+   header-actions) an den rechten Rand. */
+.header-spacer {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.project-name-input {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  font-size: 0.9rem;
+  width: 12rem;
+  max-width: 30vw;
+}
+
+.project-name-input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.counter-value {
+  width: 2.4rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+  font-family: inherit;
+  padding: 0.2rem 0.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: inherit;
+}
+
+.counter-value:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.counter-arrows {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.counter-arrow-btn {
+  padding: 0;
+  width: 1.1rem;
+  height: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  background: var(--color-surface);
+  color: inherit;
+  font-size: 0.55rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.counter-arrow-btn + .counter-arrow-btn {
+  margin-top: 1px;
+}
+
+.counter-arrow-btn:hover {
+  background: var(--color-hover);
+}
+
+.menu-wrapper {
+  position: relative;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 13rem;
+  padding: 0.6rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 12px 28px var(--color-shadow),
+    0 2px 6px var(--color-shadow);
+  z-index: 10;
+  /* max-height wird beim Oeffnen in wireMenu() (app.ts) passend zur
+     tatsaechlich verbleibenden Fensterhoehe als Inline-Style gesetzt - bei
+     kleinen Fenstern/vielen Menuepunkten haengt der Inhalt sonst unten aus
+     dem sichtbaren Bereich heraus. overflow-y sorgt dann fuer den Scrollbalken. */
+  overflow-y: auto;
+}
+
+/* Wie bei `.panel`: `display: flex` als Autor-Regel wuerde sonst das
+   UA-Default fuer `[hidden]` bei gleicher Spezifitaet ueberschreiben. */
+.menu-dropdown[hidden] {
+  display: none;
+}
+
+.menu-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-section + .menu-section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.6rem;
+}
+
+.menu-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+}
+
+.menu-item {
+  padding: 0.4rem 0.55rem;
+  text-align: left;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.menu-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.menu-item:not(:disabled):hover {
+  background: var(--color-hover);
+}
+
+.menu-select {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+}
+
+/* Statuszeile im Ausrichten-Popover ("Anker anklicken..." usw.) - dieselbe
+   dezente Optik wie .menu-label, aber ohne Grossbuchstaben (das ist hier ein
+   ganzer Satz, keine Rubrik-Ueberschrift). */
+.menu-hint {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+/* Drei nebeneinanderliegende "Anfang/Mitte/Ende"-Knoepfe im Ausrichten-
+   Popover - wie Tabs, nicht wie unabhaengige Umschalter (siehe
+   .segmented-buttons button[aria-pressed] unten). */
+.segmented-buttons {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.segmented-buttons button {
+  flex: 1 1 0;
+}
+
+.segmented-buttons button[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.btn,
+.menu-select {
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 80ms ease;
+}
+
+.btn:focus-visible,
+.menu-select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.btn {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: 0 1px 2px var(--color-shadow);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--color-hover);
+  box-shadow: 0 3px 8px var(--color-shadow);
+}
+
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 1px var(--color-shadow);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn:disabled:hover {
+  background: var(--color-surface);
+}
+
+.btn-icon {
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.app-layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0.65rem;
+  background: var(--color-bg);
+}
+
+.panel-editor {
+  flex: 1 1 auto;
+  min-width: 320px;
+}
+
+.panel-code {
+  flex: 0 1 360px;
+  min-width: 200px;
+}
+
+.panel-viewer {
+  /* 460px statt vorher 420px: bei 420px umbricht die zweite Icon-Zeile
+     (Farben/Glaette/Messen/Kollision/Customizer/Qualitaet/Schnitt/Explosion/
+     Schatten/Licht, 11 Icons) auf zwei Zeilen - ab ca. 428px passt sie in
+     eine Zeile, 460px laesst dafuer etwas Luft. */
+  flex: 0 1 460px;
+  min-width: 240px;
+}
+
+.panel-agent {
+  flex: 0 1 340px;
+  min-width: 260px;
+}
+
+.resizer {
+  flex: none;
+  width: 14px;
+  cursor: col-resize;
+  position: relative;
+}
+
+.resizer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: 0 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  transition: background-color 120ms ease;
+}
+
+.resizer:hover::after {
+  background: var(--color-accent);
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px var(--color-shadow);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* `.panel` setzt `display: flex` und ueberschreibt sonst das UA-Default
+   fuer das `hidden`-Attribut (gleiche Spezifitaet, Autor-CSS gewinnt). */
+.panel[hidden] {
+  display: none;
+}
+
+.panel-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin: 0;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Blockly verwaltet Scrollen/Layout innerhalb seines eigenen Containers selbst. */
+.panel-editor .panel-body {
+  overflow: hidden;
+}
+
+/* Moderneres Erscheinungsbild fuer Blocklys Toolbox-Kategorienliste (ersetzt
+   das dicht gepackte, flach-graue Default-Design durch abgerundete, luftige
+   Zeilen mit dezentem Auswahl-/Hover-Zustand, wie in modernen CAD-Programmen
+   ueblich). Farbe/Breite des linken Akzentbalkens sowie der Hintergrund bei
+   Auswahl setzt Blockly selbst per Inline-Style je Kategorie — deshalb hier
+   mit !important ueberschrieben. */
+.blocklyToolbox {
+  background: var(--color-bg) !important;
+  border-right: 1px solid var(--color-border);
+  /* Oben Platz fuer den Ein-/Ausklapp-Knopf lassen (siehe .bsn-toolbox-toggle
+     unten), damit die Kategorienliste klar darunter beginnt statt darunter
+     wegzulaufen. */
+  padding: 44px 8px 12px !important;
+  font-family: inherit !important;
+  /* Feste Breiten (statt "auto") noetig, damit die Breite beim Ein-/
+     Ausklappen (siehe toolboxCollapse.ts) ueberhaupt animierbar ist --
+     CSS kann nicht von/zu "auto" transitionieren. */
+  width: 208px !important;
+  overflow: hidden !important;
+  box-sizing: border-box;
+  transition: width 220ms ease;
+}
+
+.blocklyToolbox.bsn-toolbox-collapsed {
+  width: 56px !important;
+}
+
+.blocklyToolboxCategoryContainer {
+  margin-bottom: 3px;
+}
+
+.blocklyToolboxCategory {
+  /* Die Zeile selbst muss ein Flex-Container sein, sonst sitzt ihr Kind
+     (.blocklyTreeRowContentContainer, sich selbst zwar intern zentrierend)
+     einfach im normalen Fluss oben in der 36px-hohen Zeile statt darin
+     vertikal zentriert zu sein. */
+  display: flex !important;
+  align-items: center;
+  /* Damit z-index beim Hover (unten) ueberhaupt greift. */
+  position: relative;
+  height: 36px !important;
+  line-height: 36px !important;
+  margin-bottom: 10px !important;
+  padding-left: 14px !important;
+  padding-right: 10px !important;
+  border-left-width: 4px !important;
+  border-radius: var(--radius-sm);
+  /* Von toolboxAppearance.ts pro Kategorie gesetzt (hellere Version der
+     eigenen Akzentfarbe) -- Fallback transparent, falls (noch) nicht gesetzt. */
+  background-color: var(--cat-tint, transparent);
+  /* transform-origin links: waechst beim Hover (siehe unten) nach rechts
+     raus statt auch nach links (dort sitzt der Akzentrand/Toolbox-Rand). */
+  transform-origin: left center;
+  transition:
+    background-color 120ms ease,
+    border-left-width 120ms ease,
+    filter 120ms ease,
+    transform 120ms ease;
+}
+
+.blocklyToolboxCategory:not(.blocklyToolboxSelected):hover {
+  filter: brightness(0.94);
+  transform: scale(1.04);
+  /* Ueber eventuell leicht ueberlappte Nachbarzeilen zeichnen. */
+  z-index: 1;
+}
+
+.blocklyToolboxSelected {
+  background-color: var(--cat-tint, var(--color-hover)) !important;
+  filter: brightness(0.88);
+  border-left-width: 6px !important;
+}
+
+.bsn-toolbox-collapsed .blocklyToolboxCategory {
+  /* Nicht symmetrisch: der linke Akzentrand (4-6px, siehe border-left-width
+     oben) zaehlt nicht zum Padding, ragt also zusaetzlich links raus --
+     etwas weniger Padding links als rechts gleicht das optisch aus, damit
+     das Icon in der Box wirklich mittig wirkt statt leicht nach links
+     verschoben. */
+  padding-left: 0 !important;
+  padding-right: 6px !important;
+}
+
+.bsn-toolbox-collapsed .blocklyTreeRowContentContainer {
+  justify-content: center;
+}
+
+.bsn-toolbox-collapsed .blocklyToolboxCategoryLabel {
+  display: none !important;
+}
+
+.bsn-toolbox-collapsed .bsn-cat-icon {
+  margin-right: 0;
+}
+
+.blocklyTreeRowContentContainer {
+  display: flex !important;
+  align-items: center;
+  /* Da die Zeile selbst jetzt auch ein Flex-Container ist (siehe
+     .blocklyToolboxCategory), waere dieses Kind sonst nur noch so breit wie
+     sein Inhalt statt die ganze Zeile zu fuellen -- dann liefe
+     "justify-content: center" im eingeklappten Zustand (unten) ins Leere. */
+  width: 100%;
+}
+
+/* Eigenes Icon je Kategorie (per cssconfig.icon in toolbox.ts gesetzt) --
+   "cssconfig.icon" ERSETZT Blocklys Standard-Klasse "blocklyToolboxCategoryIcon"
+   komplett (statt sie zu ergaenzen), daher hier auf die eigene Klasse
+   "bsn-cat-icon" zielen, nicht auf die eingebaute. */
+.bsn-cat-icon {
+  visibility: visible !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px;
+  background-image: none !important;
+  /* Einfarbig (nicht bunte Emoji) und fuer alle Kategorien dieselbe Farbe,
+     passend zum Text -- Akzentfarbe bleibt allein dem linken Balken
+     vorbehalten. */
+  color: var(--color-fg) !important;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  margin-right: 12px;
+  /* Geometrisch sitzt die Box exakt mittig zum Text (per Flex-Zentrierung),
+     optisch wirken Symbolzeichen (◆⊕∑✓↻ usw.) darin aber hoeher als
+     lateinischer Text, weil ihre Glyphen-Metrik anders verteilt ist als bei
+     Buchstaben -- kleiner manueller Versatz gleicht das aus. */
+  position: relative;
+  top: 1px;
+}
+
+.bsn-cat-icon-primitives3d::before {
+  content: '◆';
+}
+.bsn-cat-icon-primitives2d::before {
+  content: '○';
+}
+.bsn-cat-icon-transforms::before {
+  content: '⇄';
+}
+.bsn-cat-icon-booleans::before {
+  content: '⊕';
+}
+.bsn-cat-icon-math::before {
+  content: '∑';
+}
+.bsn-cat-icon-logic::before {
+  content: '✓';
+}
+.bsn-cat-icon-loops::before {
+  content: '↻';
+}
+.bsn-cat-icon-text::before {
+  content: 'T';
+}
+.bsn-cat-icon-variables::before {
+  content: 'x';
+}
+.bsn-cat-icon-modules::before {
+  content: '▦';
+}
+.bsn-cat-icon-code::before {
+  content: '{}';
+}
+
+.blocklyToolboxCategoryLabel {
+  /* line-height 1.3 statt 1: bei genau 1x Schriftgroesse reicht die Zeilenbox
+     bei diesen Systemschriften nicht fuer die volle Glyphen-Metrik -
+     Unterlaengen (z.B. "g" in "Logik") wurden vom "overflow: hidden" darunter
+     abgeschnitten. */
+  font:
+    600 14px/1.3 system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif !important;
+  letter-spacing: 0.1px;
+  color: var(--color-fg) !important;
+  padding: 0 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ein-/Ausklapp-Knopf oben rechts an der Toolbox (siehe toolboxCollapse.ts)
+   -- Position wird per JS gesetzt (folgt der Toolbox-Breite), hier nur die
+   Positionierungsart. */
+.bsn-toolbox-toggle {
+  position: absolute;
+  z-index: 71;
+}
+
+/* Mit ".bsn-zoom-btn" kombinierte (spezifischere, ordnungsunabhaengige)
+   Regel statt eines eigenen "transition"-Werts fuer nur ".bsn-toolbox-toggle"
+   -- "transition" ist ein Shorthand, zwei getrennte Regeln wuerden sich
+   sonst je nach Reihenfolge im Stylesheet komplett gegenseitig ersetzen
+   statt sich zu ergaenzen. Der Knopf gleitet dadurch beim Ein-/Ausklappen
+   (siehe toolboxCollapse.ts) synchron mit der Toolbox-Breite mit, statt erst
+   am Ende der Animation an die neue Stelle zu springen. */
+.bsn-zoom-btn.bsn-toolbox-toggle {
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    left 220ms ease;
+}
+
+/* Viewer-Panel-Body haelt Toolbar + Canvas als Spalte (Toolbar fix, Canvas fuellt Rest).
+   ID-Selektor statt ".panel-viewer .panel-body": das Element wird beim
+   Popout in ein anderes Fenster verschoben und verliert dabei seinen
+   ".panel-viewer"-Vorfahren — ein Vorfahren-Selektor wuerde dort ins Leere
+   laufen und das ganze Spalten-Layout (und damit auch die Canvas-Groesse)
+   zusammenbrechen lassen. */
+#viewer-root {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Eigener Zoom-/Minimap-Icon-Cluster (ersetzt Blocklys eingebaute Zoom-Controls),
+   von Blockly per IPositionable in dieselbe Ecke gesetzt, an der sonst der
+   Papierkorb saesse. */
+.bsn-zoom-cluster {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  /* Die letzte Zeile (Suche + Alles-einpassen) ist breiter als die
+     einzelnen Buttons darueber — rechtsbuendig ausrichten, damit alle
+     Buttons an derselben Kante sitzen (Suche haengt dann links raus). */
+  align-items: flex-end;
+  gap: 4px;
+  z-index: 3;
+}
+
+.bsn-zoom-row {
+  display: flex;
+  gap: 4px;
+}
+
+.bsn-zoom-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px var(--color-shadow);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.bsn-zoom-btn:hover {
+  background: var(--color-hover);
+}
+
+.bsn-zoom-btn[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+/* Regler fuer die Mausrad-Zoom-Geschwindigkeit, unterhalb der Icons im
+   selben Cluster (siehe minimap.ts) - feste Breite statt "width: 100%":
+   der Cluster-Container ist selbst shrink-to-fit (kein definites Elternmass,
+   siehe align-items:flex-end auf .bsn-zoom-cluster), ein Prozentwert wuerde
+   also auf die Browser-Standardbreite eines <input type=range> zurueckfallen
+   (deutlich breiter als die Icon-Spalte). 60px = ZOOM_SPEED_SLIDER_WIDTH aus
+   minimap.ts (2 Buttons x 28px + 4px Abstand). */
+.bsn-zoom-speed-slider {
+  width: 60px;
+  height: 28px;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Tacho-Icon rechts neben dem Regler, veranschaulicht dessen Zweck
+   (Zoom-Geschwindigkeit) - 16px = ZOOM_SPEED_ICON_SIZE aus minimap.ts. */
+.bsn-zoom-speed-icon {
+  width: 16px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+/* @blockly/plugin-workspace-search: die eingebauten Weiter-/Zurueck-Pfeile
+   der Suchleiste sind winzig (14x14px-Icon ohne Groessenangabe am Button
+   selbst) — hier vergroessert. */
+.blockly-ws-search-next-btn,
+.blockly-ws-search-previous-btn {
+  width: 24px;
+  height: 24px;
+  background-size: 20px 20px;
+  background-position: center;
+}
+
+.code-panel-inner {
+  position: relative;
+  height: 100%;
+}
+
+.code-panel-actions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.code-preview {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  height: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre;
+  overflow: auto;
+}
+
+.viewer-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+/* Gruener Rand fuer "gerade wirksam/in Benutzung" statt nur "Popover offen"
+   (aria-expanded) - Explosion/Schnitt/Kollision: jeweils per "Aktiv"-
+   Kaestchen im Popover eingeschaltet, Draht: Drahtgitter-Ansicht an, Messen/
+   Winkel: das jeweilige Messwerkzeug ist gerade aktiv. */
+#explosion-menu-btn[aria-pressed='true'],
+#transparency-menu-btn[aria-pressed='true'],
+#clipping-menu-btn[aria-pressed='true'],
+#check-collisions-btn[aria-pressed='true'],
+#toggle-wireframe-btn[aria-pressed='true'],
+#toggle-heatmap-btn[aria-pressed='true'],
+#toggle-flashlight-btn[aria-pressed='true'],
+#toggle-measure-btn[aria-pressed='true'],
+#toggle-measure-angle-btn[aria-pressed='true'],
+#toggle-block-select-btn[aria-pressed='true'],
+#record-mic-btn[aria-pressed='true'],
+#record-tab-mic-btn[aria-pressed='true'] {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 1px var(--color-success);
+}
+
+/* Einziges Element in der Zeile mit margin-left:auto — schiebt sich damit
+   an den rechten Rand, waehrend der Rest links gepackt bleibt. */
+.viewer-popout-btn {
+  margin-left: auto;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+}
+
+.menu-mesh-color-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.viewer-controls .menu-select {
+  padding: 0.3rem 0.4rem;
+  font-size: 0.8rem;
+}
+
+.export-color-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.export-color-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.3rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.export-color-option:hover {
+  background: var(--color-hover);
+}
+
+.color-swatch-mini {
+  flex-shrink: 0;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slider-row input[type='range'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.clipping-position-number {
+  width: 4.5rem;
+  padding: 0.2rem 0.3rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.btn-small {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.auto-render-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.viewer-canvas {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.viewer-canvas canvas {
+  display: block;
+}
+
+.viewer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.6rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.menu-dropdown label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.render-status {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: 0 1px 3px var(--color-shadow);
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Kein Text (Erfolg) -> keine schwebende Box zeigen. */
+.render-status:empty {
+  display: none;
+}
+
+.render-status[data-state='loading'] {
+  opacity: 0.7;
+}
+
+.render-status[data-state='error'] {
+  color: var(--color-danger);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.render-status[data-state='success'] {
+  opacity: 0.7;
+}
+
+.render-status[data-state='stale'] {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Waehrend eines laufenden Renders: zwei eigene Zeilen statt Ueberlagerung -
+   oben der normale Status-Text ("Rendere…"), darunter die Farbskala mit
+   einem Segment je Fragment (siehe startRenderProgress()/
+   markRenderProgress() in viewerPanel.ts), beide auf voller Breite,
+   nichts verdeckt das andere. Die Breite je Segment ergibt sich automatisch
+   aus der Fragment-Anzahl (flex: 1 1 0 auf gleicher Gesamtbreite), das
+   zuletzt fertige Fragment faerbt sich also immer ganz rechts ein. */
+.render-status.render-status-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.render-progress-track {
+  display: flex;
+  gap: 2px;
+}
+
+.render-progress-segment {
+  flex: 1 1 0;
+  min-width: 2px;
+  height: 0.55rem;
+  border-radius: 2px;
+  background: var(--color-border);
+  transition: background-color 200ms ease;
+}
+
+/* Unten statt oben positioniert (siehe .render-status), damit beide
+   Statuszeilen gleichzeitig sichtbar sein koennen, ohne sich zu ueberlappen. */
+.measure-status {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: 0 1px 3px var(--color-shadow);
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Customizer direkt im Bild - unten rechts, damit Regler/Modell gleichzeitig
+   sichtbar bleiben. Anders als .render-status/.measure-status braucht diese
+   Box echte Zeigerereignisse (Regler/Kontrollkaestchen sind interaktiv). */
+.customizer-overlay {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  /* Waechst mit dem Inhalt (z.B. laengere Feld-Labels samt "(min-max)")
+     statt bei fester Breite abzuschneiden - min/max stecken nur den
+     sinnvollen Rahmen ab. */
+  min-width: 18rem;
+  width: fit-content;
+  max-width: min(28rem, calc(100% - 1rem));
+  max-height: min(70%, 24rem);
+  overflow-y: auto;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  /* 60% deckend statt voll - lässt das Modell dahinter leicht durchscheinen,
+     wirkt weniger wie eine blickdichte Wand ueber der Vorschau. Nur der
+     Hintergrund ist transparent, Text/Regler bleiben ueber "opacity"
+     unangetastet voll lesbar. */
+  background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  box-shadow:
+    0 4px 16px var(--color-shadow),
+    0 1px 3px var(--color-shadow);
+  font-size: 0.82rem;
+}
+
+.customizer-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.customizer-overlay-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.customizer-overlay-close {
+  width: 1.4rem;
+  height: 1.4rem;
+  min-width: unset;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.info-dialog {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  max-width: 24rem;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  box-shadow:
+    0 12px 28px var(--color-shadow),
+    0 2px 6px var(--color-shadow);
+}
+
+.info-dialog::backdrop {
+  background: #00000066;
+}
+
+.info-dialog h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.info-dialog p {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.info-subheading {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.info-tech-list {
+  margin: 0 0 1.1rem;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.info-copyright {
+  margin: 0 0 1.1rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
+.info-copyright a {
+  color: inherit;
+}
+
+/* Blockly setzt fuer sein Kontextmenue/Dropdown standardmaessig einen
+   unsichtbaren "border: 1px solid transparent" (siehe Blockly-eigenes CSS).
+   Die Menuehoehe wird exakt auf den Inhalt berechnet, der (unsichtbare)
+   Rahmen frisst davon aber 2px im Box-Model - daher zeigt Blockly staendig
+   einen Scrollbalken an, obwohl nichts zu scrollen ist. Rahmenbreite auf 0
+   erzwingen behebt das, ohne optisch etwas zu aendern (er war ja transparent). */
+.blocklyWidgetDiv .blocklyMenu {
+  border-width: 0;
+}
+
+.info-dialog form {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.samples-dialog {
+  max-width: 42rem;
+  width: min(90vw, 42rem);
+}
+
+/* Eigenstaendige Tutorials-Seite (tutorials.html/tutorialsMain.ts) statt
+   Dialog - sonst dieselbe .samples-body/.samples-chapters/.samples-list
+   Struktur wie im eingebetteten Dialog. */
+.samples-page {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  /* --color-surface (weiss/hell) statt --color-bg (das graue Seiten-
+     Hintergrund der App) - sonst wirkt die eigenstaendige Seite wie nackter
+     Hintergrund ohne Inhaltsflaeche, waehrend der eingebettete Dialog
+     (.info-dialog) eine "weisse Karte" zeigt. */
+  background: var(--color-surface);
+  color: var(--color-fg);
+  height: 100vh;
+  /* Nur .samples-list soll intern scrollen (siehe dort) - ein zusaetzlicher
+     Scrollbalken auf der ganzen Seite ergibt in einem extra dafuer
+     geoeffneten Popup-Fenster keinen Sinn. */
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.samples-page-title {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+}
+
+.samples-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.samples-dialog-header h2 {
+  margin: 0;
+}
+
+/* Zweispaltig wie Blocklys eigene Toolbox: links die Kapitel (Kategorien),
+   rechts die Eintraege des gerade gewaehlten Kapitels. */
+.samples-body {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  /* Nur wirksam, wenn der Elter (.samples-page) selbst ein Flex-Container
+     ist (eigenstaendige Tutorials-Seite) - im eingebetteten Dialog ist der
+     Elter kein Flex-Container, hier also wirkungslos. */
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.samples-chapters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 0 0 9rem;
+  border-right: 1px solid var(--color-border);
+  padding-right: 0.75rem;
+}
+
+.samples-chapter-btn {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.samples-chapter-btn:hover {
+  background: var(--color-hover);
+}
+
+.samples-chapter-btn[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.samples-list {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Auf der eigenstaendigen Tutorials-Seite (siehe .samples-page oben) ist die
+   60vh-Deckelung von .samples-list falsch: sie war fuer den kompakten
+   eingebetteten Dialog gedacht, wo die Seite drumherum viel groesser als der
+   Dialog bleibt. Im Popup-Fenster fuellt .samples-body (flex: 1 1 auto)
+   bereits korrekt die tatsaechlich verfuegbare Hoehe bis .samples-page
+   (height: 100vh) - eine zusaetzliche 60vh-Deckelung liesse bei einem
+   grossen/maximierten Fenster nur unten unbenutzten Leerraum uebrig, statt
+   die Liste die volle sichtbare Hoehe nutzen zu lassen. */
+.samples-page .samples-list {
+  max-height: none;
+}
+
+.samples-status {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.sample-item + .sample-item {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.sample-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sample-item-name {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.sample-item-description {
+  margin: 0;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.sample-item-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* :not([hidden]) statt nur ".sample-video" - sonst hat "display:block" hier
+   dieselbe Spezifitaet wie das Browser-eigene "[hidden]{display:none}" und
+   gewinnt je nach Ladereihenfolge, das Video waere dann IMMER sichtbar,
+   auch bevor der Vorschau-Knopf geklickt wurde. */
+/* width/height:auto statt width:100% - der Player soll die tatsaechliche
+   Groesse der Videodatei annehmen (kein unnoetiger schwarzer Rand durch
+   Aufblasen auf volle Breite), max-width/max-height begrenzen ihn nur nach
+   oben (sehr grosse Aufnahmen, schmaler Dialog/Fenster). */
+.sample-video:not([hidden]) {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 22rem;
+  margin-top: 0.6rem;
+  border-radius: var(--radius-sm);
+  background: #000;
+}
+
+.confirm-dialog-actions {
+  gap: 0.6rem;
+}
+
+.btn-danger {
+  border-color: var(--color-danger, #c0392b);
+  background: var(--color-danger, #c0392b);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: var(--color-danger-hover, #a93226);
+}
+
+#record-btn[aria-pressed='true'],
+#record-tab-btn[aria-pressed='true'],
+#record-menu-btn[aria-pressed='true'],
+#record-tab-menu-btn[aria-pressed='true'] {
+  color: var(--color-danger, #c0392b);
+  animation: record-pulse 1.4s ease-in-out infinite;
+}
+
+/* Waehrend einer pausierten Aufnahme (siehe record-pause-btn/-tab-pause-btn
+   in viewerPanel.ts/app.ts) bleibt der Aufnahme-Knopf rot (eine Sitzung ist
+   ja noch aktiv), aber ohne das Pulsieren - das signalisiert sonst
+   faelschlich "es wird gerade aufgezeichnet". */
+#record-btn.recording-paused[aria-pressed='true'],
+#record-tab-btn.recording-paused[aria-pressed='true'],
+#record-menu-btn.recording-paused[aria-pressed='true'],
+#record-tab-menu-btn.recording-paused[aria-pressed='true'] {
+  animation: none;
+}
+
+/* Mini-Menue fuer die Aufnahme-Steuerung (Start/Stop, Pause, Mikrofon) -
+   klappt unter dem Kamera-Symbol auf (siehe record-menu-btn/-dropdown in
+   viewerPanel.ts/app.ts), bleibt waehrend der Aufnahme offen (zeigt dann den
+   Pause-Knopf zusaetzlich). Eigene Breite/Ausrichtung statt der
+   Listen-Darstellung des generischen .menu-dropdown: nur eine Handvoll
+   Icon-Knoepfe nebeneinander, kein 13rem breites Auswahlmenue. */
+.record-menu-dropdown {
+  display: flex;
+  flex-direction: row;
+  min-width: 0;
+  width: max-content;
+  gap: 0.375rem;
+}
+
+@keyframes record-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Klick auf ein Teil im Viewer springt zum erzeugenden Block (siehe
+   ui/viewerPanel.ts::jumpToBlock()) - Blocklys eigener gelber Auswahlrahmen
+   bleibt zwar bestehen, faellt aber v.a. nach dem Scrollen ins Bild kaum
+   auf. Ein paar Mal aufblitzender Leuchtrand lenkt den Blick gezielt dorthin;
+   die Klasse wird nach Ablauf der Animation per JS wieder entfernt (siehe
+   dort), der dauerhafte Blockly-Auswahlrahmen bleibt danach unveraendert. */
+.bsn-block-jump-flash {
+  animation: block-jump-flash 0.5s ease-in-out 3;
+}
+
+@keyframes block-jump-flash {
+  0%,
+  100% {
+    filter: none;
+  }
+  50% {
+    filter: drop-shadow(0 0 3px #ffcc00) drop-shadow(0 0 8px #ffcc00);
+  }
+}
+
+.recording-dialog {
+  max-width: 32rem;
+  width: min(90vw, 32rem);
+}
+
+.recording-dialog-video {
+  display: block;
+  width: 100%;
+  max-height: 60vh;
+  border-radius: var(--radius-sm);
+  background: #000;
+  margin-bottom: 0.75rem;
+}
+
+.trace-photo-dialog {
+  /* Breiter als der generische .info-dialog-Rahmen (24rem) und als die
+     urspruengliche Foto-Dialog-Breite (44rem, dort stiess der Arbeitsbereich
+     oft schon an die Breite, bevor die eigentlich verfuegbare Bildschirm-
+     hoehe ausgenutzt war - siehe updateCanvasWrapMaxHeight() in
+     tracePhotoDialog.ts). Bewusst nicht extrem breit (z.B. 90rem/95vw): das
+     wirkte auf grossen Bildschirmen im eingebetteten Zustand ueberdimensioniert
+     - ein groesserer Arbeitsbereich soll gezielt ueber das Auslagern in ein
+     eigenes, groesseres Fenster erreicht werden (siehe popOut() dort). */
+  max-width: 60rem;
+  width: min(90vw, 60rem);
+}
+
+.trace-photo-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.trace-photo-dialog-header h2 {
+  margin: 0;
+}
+
+.trace-photo-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.trace-photo-color-input {
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0.15rem;
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+}
+
+/* Schiebt alles, was DANACH im Toolbar-Flex kommt (Rotieren-/Zoom-/
+   Linienstaerke-Rahmen), an den rechten Rand - Einfuegen/Entfernen-Punkt
+   bleiben davor am linken Rand stehen. */
+.trace-photo-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+/* Gemeinsamer Rahmen fuer zusammengehoerige Werkzeug-Gruppen (Rotieren,
+   Zoom, Linienstaerke) - macht auf einen Blick klar, welche Knoepfe/Anzeigen
+   zusammengehoeren, statt nur durch Abstand getrennt zu sein. Nur ein duenner
+   Rahmen in --color-border (sehr hell/kontrastarm) reichte dafuer kaum aus -
+   zusaetzlich eine leichte Fuellung in --color-bg (im Dialog selbst wird
+   --color-surface als Hintergrund genutzt, siehe .info-dialog, die beiden
+   Farbtoene unterscheiden sich in jedem Theme sichtbar voneinander). */
+.trace-photo-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+
+.trace-photo-line-width-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted, inherit);
+}
+
+.trace-photo-zoom-label {
+  min-width: 3.5rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted, inherit);
+}
+
+.trace-photo-canvas-wrap {
+  /* Reiner Startwert, bevor updateCanvasWrapMaxHeight() (tracePhotoDialog.ts)
+     beim Oeffnen/Resize die tatsaechlich verfuegbare Hoehe misst und als
+     Inline-Style ueberschreibt - eine feste vh-Zahl allein reicht nicht, da
+     Kopfzeile/Hinweistext/Toolbar (je nach Fensterbreite ein- oder
+     zweizeilig) und Fusszeile unterschiedlich viel Platz brauchen und der
+     Dialog selbst schon eine eigene max-height hat. Ohne diese Neuberechnung
+     ragt die Fertig/Abbrechen-Zeile sonst teils ein paar Pixel unten heraus
+     und der Dialog bekommt einen eigenen Scrollbalken. */
+  max-height: 80vh;
+  overflow: auto;
+  border-radius: var(--radius-sm);
+  background: #000;
+  margin-bottom: 0.75rem;
+}
+
+.trace-photo-canvas {
+  display: block;
+  height: auto;
+  /* Verhindert, dass der Browser Touch-Gesten (Scrollen/Pinch-Zoom) statt
+     sauberer Pointer-Events fuer das Zeichnen abgreift. */
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.trace-photo-canvas[data-edit-mode='move'] {
+  cursor: grab;
+}
+
+.trace-photo-canvas[data-edit-mode='move'][data-panning='true'] {
+  cursor: grabbing;
+}
+
+/* Eigene Kreis-Cursor statt der systemeigenen copy-/not-allowed-Symbole
+   (Letzteres sieht wie ein "Durchfahrt verboten"-Schild aus und wurde als
+   verwirrend empfunden) - so sehen Einfuegen/Entfernen ueberall gleich aus
+   und tragen jeweils klar ein +/- statt eines generischen Icons. */
+.trace-photo-canvas[data-edit-mode='insert'] {
+  cursor:
+    url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyOCcgaGVpZ2h0PScyOCc+PGNpcmNsZSBjeD0nMTQnIGN5PScxNCcgcj0nMTAnIGZpbGw9JyMyZjllNDQnIHN0cm9rZT0nd2hpdGUnIHN0cm9rZS13aWR0aD0nMicvPjxyZWN0IHg9JzEyJyB5PSc4JyB3aWR0aD0nNCcgaGVpZ2h0PScxMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PSc4JyB5PScxMicgd2lkdGg9JzEyJyBoZWlnaHQ9JzQnIGZpbGw9J3doaXRlJy8+PC9zdmc+')
+      14 14,
+    copy;
+}
+
+.trace-photo-canvas[data-edit-mode='delete'] {
+  cursor:
+    url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyOCcgaGVpZ2h0PScyOCc+PGNpcmNsZSBjeD0nMTQnIGN5PScxNCcgcj0nMTAnIGZpbGw9JyNkMTQ1M2InIHN0cm9rZT0nd2hpdGUnIHN0cm9rZS13aWR0aD0nMicvPjxyZWN0IHg9JzgnIHk9JzEyJyB3aWR0aD0nMTInIGhlaWdodD0nNCcgZmlsbD0nd2hpdGUnLz48L3N2Zz4=')
+      14 14,
+    pointer;
+}
+
+#trace-insert-point-btn[aria-pressed='true'],
+#trace-move-point-btn[aria-pressed='true'],
+#trace-delete-point-btn[aria-pressed='true'],
+#trace-point-type-line-btn[aria-pressed='true'],
+#trace-point-type-bezier-btn[aria-pressed='true'],
+#trace-point-type-bspline-btn[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.customizer-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-bottom: 0.75rem;
+}
+
+.customizer-empty {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.customizer-module + .customizer-module {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.customizer-module-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* white-space:pre-line erhaelt Zeilenumbrueche, die der Nutzer im
+   mehrzeiligen REM-Block (os_comment) selbst eingegeben hat. */
+.customizer-module-comment {
+  margin: -0.25rem 0 0.5rem;
+  font-size: 0.8rem;
+  opacity: 0.75;
+  white-space: pre-line;
+}
+
+.customizer-call + .customizer-call {
+  margin-top: 0.6rem;
+}
+
+.customizer-call-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin-bottom: 0.2rem;
+}
+
+.customizer-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+}
+
+.customizer-field-label {
+  font-size: 0.85rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customizer-field-control {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+}
+
+.customizer-range {
+  width: 8rem;
+}
+
+.customizer-number {
+  width: 4.5rem;
+}
+
+.customizer-text {
+  width: 12rem;
+}
+
+.agent-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.agent-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.agent-log-entry {
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.agent-log-entry-user {
+  align-self: flex-end;
+  background: var(--color-accent);
+  color: #fff;
+  max-width: 85%;
+}
+
+.agent-log-entry-text {
+  background: var(--color-hover);
+  max-width: 85%;
+}
+
+.agent-log-entry-thinking {
+  font-style: italic;
+  opacity: 0.65;
+}
+
+.agent-log-entry-tool {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  opacity: 0.75;
+  border: 1px dashed var(--color-border);
+}
+
+.agent-log-entry-error {
+  color: var(--color-danger, #c0392b);
+}
+
+.agent-log-entry-info {
+  opacity: 0.6;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.agent-provider-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.agent-provider-toggle {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-hover);
+  color: var(--color-fg);
+  cursor: pointer;
+}
+
+.agent-provider-toggle:hover {
+  border-color: var(--color-accent);
+}
+
+.agent-provider-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.agent-input-row {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.agent-prompt-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font: inherit;
+}

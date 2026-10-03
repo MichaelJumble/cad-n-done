@@ -1,0 +1,627 @@
+[
+    {
+        "id": "769ec28e8350fb22",
+        "type": "tab",
+        "label": "CAD N'Done KI – Claude",
+        "disabled": false,
+        "info": "",
+        "env": [
+            {
+                "name": "AI_PROMPT_ENABLED",
+                "type": "bool",
+                "value": "true"
+            },
+            {
+                "name": "AI_SYSTEM_PROMPT",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "ANTHROPIC_API_KEY",
+                "type": "cred",
+                "value": ""
+            }
+        ]
+    },
+    {
+        "id": "184f534de893d8e8",
+        "type": "template",
+        "z": "769ec28e8350fb22",
+        "name": "User Prompt",
+        "field": "user_prompt",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "mustache",
+        "template": "wir haben haustiere ",
+        "output": "str",
+        "x": 330,
+        "y": 160,
+        "wires": [
+            [
+                "a0f54a2c86bdc684"
+            ]
+        ]
+    },
+    {
+        "id": "f43bc165f3985de5",
+        "type": "template",
+        "z": "769ec28e8350fb22",
+        "name": "System Prompt",
+        "field": "system_prompt",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "\n\nSYSTEM PROMPT — LBN Informations- & Buchungsberater\n\nDu bist „LBN Buchungsberater“, der digitale Informations- und Beratungsassistent des\nLichtbund Niederrhein e.V. (LBN) in Duisburg.\n\nDeine Aufgabe:\nDu informierst Gäste verständlich, korrekt und freundlich über den Verein, das Gelände,\ndie Stellplätze/Unterkünfte, Regeln, Abläufe und den Buchungsprozess.\nDu hilfst bei der Orientierung und Entscheidungsfindung – führst aber KEINE Buchungen durch\nund fragst KEINE personenbezogenen Daten ab.\n\nGRUNDSÄTZLICHE REGELN\n- Du führst **keine Buchungen** durch.\n- Du legst **keine Entwürfe** an.\n- Du fragst **keine personenbezogenen Daten** ab (Name, Adresse, Kennzeichen, E-Mail, Telefon).\n- Du fragst **keine konkreten Reisedaten** ab, die einer Buchung gleichkommen würden.\n- Du gibst **keine verbindlichen Zusagen** zu Verfügbarkeit oder Preisen.\n- Du erfindest niemals Fakten.\n\nWenn Gäste buchen möchten, verweist du freundlich auf:\n→ https://booking.do-n-done.de  \noder auf die Geschäftsstelle des LBN.\n\nROLLE & TON\n- Tonfall: ruhig, freundlich, sachlich, vereinsnah\n- Wie ein erfahrener Mitarbeiter, der das Gelände gut kennt\n- Hilfsbereit, aber zurückhaltend\n- Keine Emojis in sachlichen Antworten\n- Keine Verkaufsrhetorik\n\nWISSENSBEREICHE (die du sicher beherrschst)\n1) Verein & Gelände\n- Lichtbund Niederrhein e.V. (LBN) Duisburg\n- Naturisten-/FKK-Grundsätze\n- Lage & Anfahrt\n- Saisonzeiten\n- Ruhezeiten\n- Tagesgäste vs. Übernachtung\n- Besucherregelungen\n- Sanitäranlagen & Infrastruktur\n- Vereinsleben (sachlich, neutral)\n\n2) Stellplätze & Unterkünfte\n- Arten von Stellplätzen (z. B. Stellplatz A1 etc.)\n- Eignung für Zelt / Wohnwagen / Wohnmobil\n- Allgemeine Unterschiede (ruhiger Bereich, zentraler Bereich)\n- Ausstattung (z. B. Stromanschluss grundsätzlich möglich oder nicht)\n- Keine Zusage zur konkreten Verfügbarkeit\n\n3) Buchungsablauf (nur erklärend)\n- Buchung erfolgt über das Online-Buchungssystem\n- Buchung ist zunächst eine Anfrage\n- Verbindlichkeit erst nach Zahlungseingang (falls zutreffend)\n- Bestätigung per E-Mail\n- Zahlungsinformationen werden nach Bestätigung mitgeteilt\n\n4) Regeln & Hinweise\n- FKK-Regeln\n- Verhalten auf dem Gelände\n- Ruhezeiten\n- Kinder & Jugendliche\n- Haustiere (nur wenn Wissensbasis vorhanden)\n- Fahrzeuge & Parken\n\nNICHT ERLAUBT\n- Keine Abfrage von:\n  - Namen\n  - E-Mail-Adressen\n  - Telefonnummern\n  - Kennzeichen\n  - Reisedaten\n- Keine Berechnung von Preisen\n- Keine Prüfung von Verfügbarkeit\n- Keine Empfehlung mit Garantie („der Platz ist frei“)\n- Keine rechtliche Bewertung\n\nERLAUBTE FORMULIERUNGEN\n- „In der Regel …“\n- „Nach den Vereinsregeln …“\n- „Üblicherweise …“\n- „Für eine verbindliche Auskunft nutzen Sie bitte das Buchungssystem …“\n\nWEITERLEITUNG\nWenn der Gast konkret buchen möchte oder nach Verfügbarkeit fragt:\n→ freundlich erklären, dass dies nur über das Buchungssystem möglich ist\n→ Link nennen\n→ optional erklären, **wie** dort vorzugehen ist\n\nSTARTVERHALTEN\nBei Gesprächsbeginn:\n- Kurze Begrüßung\n- Offene Frage nach dem Informationsbedarf\n\nBeispiel:\n„Willkommen beim Lichtbund Niederrhein e.V. Wie kann ich Ihnen bei Fragen zum Gelände,\nzu den Stellplätzen oder zum Buchungsablauf helfen?“\n\nFEHLER & UNSICHERHEIT\n- Wenn Informationen fehlen oder nicht eindeutig sind:\n  „Dazu habe ich aktuell keine gesicherten Informationen. Bitte wenden Sie sich an die Geschäftsstelle des LBN.“\n\nABSCHLUSS\n- Antworten immer hilfreich beenden\n- Kein aktives Drängen zur Buchung\n\n\n\n\n===================================\n\nWissensbasis – Lichtbund Niederrhein e.V. (LBN)\n\n===================================\n\n(für den Informations- & Buchungsberater, ohne Buchungsfunktionen)\n\n1. Verein – Lichtbund Niederrhein e.V.\n\nDer Lichtbund Niederrhein e.V. (LBN) ist ein Naturisten- und Freizeitverein in Duisburg.\nDer Verein betreibt ein Vereinsgelände zur naturistischen Erholung im Sinne der Freikörperkultur (FKK).\n\nGrundprinzipien\n\nNaturismus / Freikörperkultur (FKK) ist Bestandteil des Vereinslebens\n\nRespektvolles, rücksichtsvolles Verhalten ist verpflichtend\n\nDas Gelände dient der Erholung und dem Vereinsleben\n\nEs handelt sich nicht um einen Party- oder Eventbetrieb\n\nZielgruppe\n\nVereinsmitglieder\n\nGäste im Rahmen der jeweils gültigen Vereins- und Besuchsregeln\n\nDer digitale Buchungsassistent informiert über den Verein, das Gelände und den Buchungsablauf,\nführt jedoch keine Buchungen durch und erhebt keine personenbezogenen Daten.\n\n2. Vereinsgelände & Infrastruktur\nLage\n\nDas Vereinsgelände des Lichtbund Niederrhein e.V. befindet sich in Duisburg.\n\nAllgemeine Infrastruktur\n\nStellplätze für Übernachtungsgäste\n\nSanitäranlagen\n\nGemeinschafts- und Aufenthaltsbereiche\n\nVereinsinterne Bereiche\n\nNicht alle Bereiche des Geländes sind für alle Gäste zugänglich.\n\nNutzung des Geländes\n\nDas Gelände ist ein FKK-Gelände\n\nTextilfreies Verhalten ist üblich und Bestandteil des Vereinskonzepts\n\nAusnahmen können gesondert ausgewiesen sein\n\nRuhe & Erholung\n\nDas Gelände dient der ruhigen Erholung\n\nEs gelten feste Ruhezeiten\n\nRücksichtnahme auf andere Gäste ist verpflichtend\n\n3. Stellplätze & Unterkünfte\nAllgemeines\n\nDer Lichtbund Niederrhein e.V. bietet Stellplätze für Übernachtungsgäste an.\n\nStellplätze können sich unterscheiden in:\n\nLage auf dem Gelände\n\nNähe zu zentralen Einrichtungen\n\nRuhecharakter\n\nAusstattung (z. B. Stromanschluss)\n\nGeeignet für\n\nZelte\n\nWohnwagen\n\nWohnmobile\n\nDie konkrete Eignung hängt vom jeweiligen Stellplatz ab.\n\nPlatzbezeichnungen\n\nBeispielhafte Platzbezeichnungen sind:\n\nStellplatz A1\n\nStellplatz A2\n\nDie Auswahl und Zuweisung konkreter Stellplätze erfolgt ausschließlich über das Buchungssystem\noder durch den Verein.\n\nDer Buchungsassistent gibt keine verbindlichen Aussagen zu Verfügbarkeit oder Platzzuweisung.\n\n4. Buchungsablauf (erklärend)\nGrundsätzlich\n\nBuchungen für Aufenthalte beim Lichtbund Niederrhein e.V. erfolgen ausschließlich über das offizielle Online-Buchungssystem.\n\nTypischer Ablauf\n\nAuswahl des gewünschten Zeitraums und der Unterkunft\n\nAbsenden einer Buchungsanfrage über das Buchungssystem\n\nPrüfung der Anfrage durch den Verein\n\nVersand einer Buchungsbestätigung\n\nZahlung des angegebenen Betrags\n\nVerbindlichkeit der Buchung nach Zahlungseingang\n\nVerbindlichkeit\n\nEine Buchung gilt in der Regel erst nach Zahlungseingang als verbindlich,\nsofern nicht ausdrücklich anders mitgeteilt.\n\nDer Buchungsassistent erklärt den Ablauf,\nnimmt jedoch keine Buchungen vor und prüft keine Verfügbarkeiten oder Preise.\n\n5. Regeln & Hinweise\nFKK / Naturismus\n\nDas Vereinsgelände ist ein FKK-Gelände\n\nNacktheit ist Bestandteil des Vereinskonzepts\n\nRespektvoller Umgang ist verpflichtend\n\nRuhezeiten\n\nEs gelten festgelegte Ruhezeiten auf dem Gelände\n\nDiese dienen der Erholung aller Gäste\n\nBesucher\n\nBesucherregelungen sind einzuhalten\n\nNicht alle Bereiche sind für Besucher zugänglich\n\nFahrzeuge & Parken\n\nFahrzeuge dürfen nur in den vorgesehenen Bereichen genutzt werden\n\nPark- und Fahrregeln sind zu beachten\n\nBei Unsicherheiten gelten die jeweils aktuellen Vereinsregeln\noder die Auskünfte der Geschäftsstelle.\n\n6. Häufige Fragen (FAQ)\n\nKann ich direkt über den Chat buchen?\nNein. Buchungen sind ausschließlich über das Online-Buchungssystem möglich.\n\nIst mein Aufenthalt sofort verbindlich?\nIn der Regel wird eine Buchung erst nach Zahlungseingang verbindlich.\n\nIst das Gelände textilfrei?\nJa. Es handelt sich um ein FKK-Gelände.\n\nKann ich mir einen bestimmten Stellplatz aussuchen?\nDie Auswahl und Zuweisung erfolgt über das Buchungssystem bzw. durch den Verein.\n\nWo finde ich Preise und Verfügbarkeiten?\nIm offiziellen Buchungssystem unter:\nhttps://booking.do-n-done.de\n\n7. Kontakt & Weiterleitung\nGeschäftsstelle\n\nFür:\n\nverbindliche Auskünfte\n\nSonderfälle\n\nindividuelle Absprachen\n\nrechtliche oder vereinsinterne Fragen\n\nwenden Sie sich bitte direkt an die Geschäftsstelle des\nLichtbund Niederrhein e.V.\n\nAktuelle Kontaktdaten finden Sie auf der offiziellen Website:\nhttps://lbn-duisburg.de\n\n8. Gültigkeit für den Agenten\n\nDiese Wissensbasis gilt als verbindlich\n\nAussagen dürfen nur auf Grundlage dieses Dokuments erfolgen\n\nFehlt eine Information, muss der Agent darauf hinweisen und weiterleiten\n\nEs dürfen keine Annahmen oder Zusagen getroffen werden",
+        "output": "str",
+        "x": 340,
+        "y": 120,
+        "wires": [
+            [
+                "184f534de893d8e8"
+            ]
+        ]
+    },
+    {
+        "id": "a0f54a2c86bdc684",
+        "type": "template",
+        "z": "769ec28e8350fb22",
+        "name": "Anthropic API Key",
+        "field": "anthropic_key",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{{env.ANTHROPIC_API_KEY}}",
+        "output": "str",
+        "x": 550,
+        "y": 220,
+        "wires": [
+            [
+                "cc0a89394a3a77a2"
+            ]
+        ]
+    },
+    {
+        "id": "19821bdc50039133",
+        "type": "inject",
+        "z": "769ec28e8350fb22",
+        "name": "Starte Test",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 120,
+        "y": 120,
+        "wires": [
+            [
+                "f43bc165f3985de5"
+            ]
+        ]
+    },
+    {
+        "id": "cc0a89394a3a77a2",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "Build Claude Payload",
+        "func": "msg.headers = {\n    \"Content-Type\": \"application/json\",\n    \"x-api-key\": msg.anthropic_key,\n    \"anthropic-version\": \"2023-06-01\"\n};\n\n// Sampling-Parameter (temperature/top_p) werden von Claude Opus 5\n// abgelehnt (400) - bewusst weggelassen.\nmsg.payload = {\n    model: \"claude-opus-5\",\n    max_tokens: 16000,\n    thinking: { type: \"adaptive\", display: \"summarized\" },\n    system: msg.system_prompt,\n    messages: [\n        { role: \"user\", content: msg.user_prompt }\n    ]\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 220,
+        "wires": [
+            [
+                "f3512eaaddbe9d90"
+            ]
+        ]
+    },
+    {
+        "id": "f3512eaaddbe9d90",
+        "type": "http request",
+        "z": "769ec28e8350fb22",
+        "name": "Call Claude API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.anthropic.com/v1/messages",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1000,
+        "y": 220,
+        "wires": [
+            [
+                "b898c199bee3167a",
+                "5e8c0b4645e4b5a9"
+            ]
+        ]
+    },
+    {
+        "id": "b898c199bee3167a",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "Zeige Antwort + Token",
+        "func": "let res = msg.payload;\n\n\n// Mit aktiviertem adaptive thinking steht vor dem text-Block noch ein\n// thinking-Block in res.content - deshalb gezielt den ersten text-Block\n// suchen statt content[0] fest anzunehmen.\nlet raw = res.content.find(b => b.type === \"text\")?.text;\n\nmsg.payload = {\n    antwort: raw,\n    tokens: res.usage\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1230,
+        "y": 220,
+        "wires": [
+            [
+                "26d37b0f6a1632e9"
+            ]
+        ]
+    },
+    {
+        "id": "5e8c0b4645e4b5a9",
+        "type": "debug",
+        "z": "769ec28e8350fb22",
+        "name": "debug 311",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1120,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "26d37b0f6a1632e9",
+        "type": "debug",
+        "z": "769ec28e8350fb22",
+        "name": "GPT Antwort & Token",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1840,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "ede5dbbed7d6729b",
+        "type": "http in",
+        "z": "769ec28e8350fb22",
+        "name": "CAD N'Done Assistant Request",
+        "url": "/rest/cadndone/assistant/claude",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 640,
+        "wires": [
+            [
+                "a03438c29209e922",
+                "88cbffe973aaf4eb"
+            ]
+        ]
+    },
+    {
+        "id": "8289ee3a9647e75a",
+        "type": "http in",
+        "z": "769ec28e8350fb22",
+        "name": "CAD N'Done Assistant Preflight (CORS)",
+        "url": "/rest/cadndone/assistant/claude",
+        "method": "options",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 900,
+        "wires": [
+            [
+                "ddc02fcc44e89666"
+            ]
+        ]
+    },
+    {
+        "id": "ddc02fcc44e89666",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "CORS-Header setzen",
+        "func": "// Das Frontend (CAD N'Done, eigener Ursprung) ruft diesen Endpunkt per\n// fetch() mit Content-Type: application/json auf - der Browser schickt dem\n// eigentlichen POST daher einen OPTIONS-Preflight voraus, der hier\n// unabhaengig beantwortet werden muss, sonst blockiert der Browser den POST\n// mit einem CORS-Fehler, bevor er ueberhaupt gesendet wird.\nmsg.statusCode = 204;\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Access-Control-Allow-Methods\": \"POST, OPTIONS\",\n    \"Access-Control-Allow-Headers\": \"Content-Type\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 900,
+        "wires": [
+            [
+                "e5b396690591c7e0"
+            ]
+        ]
+    },
+    {
+        "id": "e5b396690591c7e0",
+        "type": "http response",
+        "z": "769ec28e8350fb22",
+        "name": "Preflight-Antwort",
+        "statusCode": "",
+        "headers": {},
+        "x": 600,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "a03438c29209e922",
+        "type": "debug",
+        "z": "769ec28e8350fb22",
+        "name": "debug 312",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 320,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "88cbffe973aaf4eb",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "Prüfen und Settings holen",
+        "func": "\n// Nicht mehr von globalen App-Settings oder einer CMS-Datenbankabfrage\n// abhaengig - stattdessen lokale, im Tab selbst einstellbare\n// Umgebungsvariablen (siehe Tab-Eigenschaften, Reiter\n// \"Umgebungsvariablen\": AI_PROMPT_ENABLED, AI_SYSTEM_PROMPT).\n\n// Erster Zug: body.message (einzelner String). Ab dem zweiten Zug einer\n// agentischen Tool-Use-Konversation schickt das Frontend die komplette\n// Historie als body.messages (Array von Anthropic-MessageParam) mit.\nconst body = msg.req.body ?? {};\nconst clientMessages = Array.isArray(body.messages) ? body.messages : null;\nconst message = typeof body.message === \"string\" ? body.message.trim() : undefined;\n\nif (!clientMessages && !message) {\n  msg.statusCode = 400;\n  msg.payload = { error: \"message oder messages fehlt.\" };\n  return [null, msg];\n}\n\nif (!env.get(\"AI_PROMPT_ENABLED\")) {\n  msg.statusCode = 400;\n  msg.payload = { error: \"nicht aktiviert\" };\n  return [null, msg];\n}\n\n\n// Zeitstempel erzeugen\nconst now = new Date();\nmsg.created = now.toISOString(); // → volle UTC-Zeit\n\nmsg.message = message;\nmsg.clientMessages = clientMessages;\nmsg.tools = Array.isArray(body.tools) ? body.tools : undefined;\n\nmsg.locale = body.locale?.trim();\nmsg.system_prompt = env.get(\"AI_SYSTEM_PROMPT\") || \"\";\n\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 640,
+        "wires": [
+            [
+                "d771d56f4969f8b0"
+            ],
+            [
+                "74f0ca9f6c185d53",
+                "807c25cf6f74b8a8"
+            ]
+        ]
+    },
+    {
+        "id": "74f0ca9f6c185d53",
+        "type": "http response",
+        "z": "769ec28e8350fb22",
+        "name": "HTTP Fehler",
+        "statusCode": "",
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+        },
+        "x": 910,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "807c25cf6f74b8a8",
+        "type": "debug",
+        "z": "769ec28e8350fb22",
+        "name": "debug 313",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "d771d56f4969f8b0",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "GPT Prompt vorbereiten",
+        "func": "\n\nmsg.user_prompt =msg.message\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1450,
+        "y": 560,
+        "wires": [
+            [
+                "e102ae987d79a59b"
+            ]
+        ]
+    },
+    {
+        "id": "e102ae987d79a59b",
+        "type": "template",
+        "z": "769ec28e8350fb22",
+        "name": "Anthropic API Key",
+        "field": "anthropic_key",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{{env.ANTHROPIC_API_KEY}}",
+        "output": "str",
+        "x": 1360,
+        "y": 640,
+        "wires": [
+            [
+                "523faae7d2a154c8"
+            ]
+        ]
+    },
+    {
+        "id": "523faae7d2a154c8",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "Build Claude Payload",
+        "func": "msg.headers = {\n    \"Content-Type\": \"application/json\",\n    \"x-api-key\": msg.anthropic_key,\n    \"anthropic-version\": \"2023-06-01\"\n};\n\n// Ab Zug 2 einer Tool-Use-Konversation schickt das Frontend die komplette\n// bisherige Historie mit (inkl. assistant-Zuegen mit tool_use und den\n// zugehoerigen tool_result-Antworten) - dann NICHT wieder bei einer\n// einzelnen User-Message von vorn anfangen.\nconst messages = msg.clientMessages ?? [\n    { role: \"user\", content: msg.user_prompt }\n];\n\nmsg.payload = {\n    model: \"claude-opus-5\",\n    max_tokens: 16000,\n    // Sampling-Parameter (temperature/top_p) werden von Claude Opus 5\n    // abgelehnt (400) - bewusst weggelassen, nicht vergessen wieder\n    // einzufuegen.\n    thinking: { type: \"adaptive\", display: \"summarized\" },\n    system: [\n        {\n            type: \"text\",\n            text: \"Antwortsprache: \"+msg.locale+\". Antworte ausschließlich in dieser Sprache.\"+msg.system_prompt,\n            cache_control: { type: \"ephemeral\" }\n        }\n    ],\n    messages: messages\n};\n\nif (Array.isArray(msg.tools) && msg.tools.length) {\n    msg.payload.tools = msg.tools;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1570,
+        "y": 640,
+        "wires": [
+            [
+                "b1bbbf343c9e275b",
+                "a58974a91a506402"
+            ]
+        ]
+    },
+    {
+        "id": "b1bbbf343c9e275b",
+        "type": "http request",
+        "z": "769ec28e8350fb22",
+        "name": "HTTP → Claude",
+        "method": "POST",
+        "ret": "obj",
+        "url": "https://api.anthropic.com/v1/messages",
+        "headers": [],
+        "x": 1830,
+        "y": 640,
+        "wires": [
+            [
+                "2011bc7cbda4e101",
+                "29d689425dfc8928"
+            ]
+        ]
+    },
+    {
+        "id": "a58974a91a506402",
+        "type": "debug",
+        "z": "769ec28e8350fb22",
+        "name": "debug 314",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1630,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "2011bc7cbda4e101",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "Extrahiere Antwort",
+        "func": "\nlet res = msg.payload;\n\n\n// Claude-Fehlerantworten (z.B. overloaded_error bei Kapazitaetsengpaessen,\n// invalid_request_error, etc.) haben eine eigene Form ({type:\"error\",\n// error:{...}}) statt eines content-Arrays - als eigener Fehler-Statuscode\n// durchreichen, sonst haelt das Frontend das faelschlich fuer eine\n// erfolgreiche 200er-Antwort und der Fehler kommt im UI nie an.\nif (res && res.type === \"error\") {\n  msg.statusCode = 502;\n  msg.payload = { error: res.error?.message || \"Unbekannter Fehler von Claude\" };\n  msg.raw = msg.payload.error;\n  return msg;\n}\n\n// Volle Claude-Antwort unveraendert an den Client durchreichen (statt nur\n// den Text zu extrahieren) - der agentische Tool-Use-Loop im Frontend\n// braucht tool_use-Bloecke, stop_reason und thinking-Bloecke, nicht nur\n// den reinen Antworttext.\nmsg.statusCode = 200;\n// Nur fuers Logging unten: bester verfuegbarer Text-Auszug.\nmsg.raw = res.content?.find(b => b.type === \"text\")?.text;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2090,
+        "y": 640,
+        "wires": [
+            [
+                "30ad4f4b111fac65",
+                "8ab3fb7dc3fd288d",
+                "6f50e7a7bd1a127d"
+            ]
+        ]
+    },
+    {
+        "id": "29d689425dfc8928",
+        "type": "debug",
+        "z": "769ec28e8350fb22",
+        "name": "debug 315",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2050,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "30ad4f4b111fac65",
+        "type": "http response",
+        "z": "769ec28e8350fb22",
+        "name": "Antwort senden",
+        "statusCode": "",
+        "headers": {
+            "Access-Control-Allow-Origin": "*"
+        },
+        "x": 2320,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "8ab3fb7dc3fd288d",
+        "type": "debug",
+        "z": "769ec28e8350fb22",
+        "name": "debug 316",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2270,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "6f50e7a7bd1a127d",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "ADD SOME VALUES",
+        "func": "\n\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2340,
+        "y": 640,
+        "wires": [
+            [
+                "81b97055b2b8972d"
+            ]
+        ]
+    },
+    {
+        "id": "81b97055b2b8972d",
+        "type": "switch",
+        "z": "769ec28e8350fb22",
+        "name": "",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "200",
+                "vt": "num"
+            },
+            {
+                "t": "neq",
+                "v": "200",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 2530,
+        "y": 640,
+        "wires": [
+            [
+                "8aaef3cac830cad1"
+            ],
+            [
+                "0f5fdfbc3ab694a5"
+            ]
+        ]
+    },
+    {
+        "id": "8aaef3cac830cad1",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "SET LOG",
+        "func": "\nconst cmsg={\n    msgno:1000,\n    topic:\"GPT RETURN\",\n    functionName:\"GPT RQUEST\",\n    msg:{\n        text:\"PAYLOAD\",\n        payload: {\n            text:msg.raw,\n            question: msg.message\n            }\n    }\n}\nmsg=cmsg;\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2680,
+        "y": 600,
+        "wires": [
+            [
+                "53052fa0b40e7a2f"
+            ]
+        ]
+    },
+    {
+        "id": "0f5fdfbc3ab694a5",
+        "type": "function",
+        "z": "769ec28e8350fb22",
+        "name": "SET LOG",
+        "func": "\nconst cmsg={\n    msgno:1000,\n    topic:\"GPT ERROR\",\n    functionName:\"GPT REQUEST\",\n    msg:{\n        text:\"PAYLOAD\",\n        payload: {\n            text:msg.raw,\n            question: msg.message\n            }\n    }\n}\nmsg=cmsg;\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2680,
+        "y": 700,
+        "wires": [
+            [
+                "53052fa0b40e7a2f"
+            ]
+        ]
+    },
+    {
+        "id": "53052fa0b40e7a2f",
+        "type": "flogger",
+        "z": "769ec28e8350fb22",
+        "name": "Claude-LOG",
+        "logfile": "Claude.log",
+        "inputchoice": "fullmsg",
+        "inputobject": "",
+        "inputobjectType": "msg",
+        "inputmoustache": "",
+        "loglevel": "INFO",
+        "logconfig": "8534e23c.037bc",
+        "sendpane": "",
+        "x": 2980,
+        "y": 640,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8534e23c.037bc",
+        "type": "config-log",
+        "logname": "standard-logging",
+        "logdir": "/floggerlogs/",
+        "stamp": "utc",
+        "logstyle": "json",
+        "logrotate": true,
+        "logcompress": true,
+        "logrotatecount": "5",
+        "logsize": "1000"
+    }
+]

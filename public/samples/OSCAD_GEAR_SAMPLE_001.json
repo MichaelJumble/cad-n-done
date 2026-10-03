@@ -1,0 +1,464 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "procedures_defnoreturn",
+        "id": "OgdWqsIn13MmQujS59y8",
+        "x": 0,
+        "y": 0,
+        "extraState": {
+          "params": [
+            {
+              "name": "tooth_pitch",
+              "id": "Zao5p1eFryEBUqBe3ZGu"
+            },
+            {
+              "name": "pressure_angle",
+              "id": "UjpuHOReBZR79fDKu5jU"
+            },
+            {
+              "name": "addendum",
+              "id": "fuj2goajUvINnuGUS2PM"
+            },
+            {
+              "name": "dedendum",
+              "id": "snZrCn1QjysAt9xcbexI"
+            },
+            {
+              "name": "bevel_tooth_count",
+              "id": "Cid0SLo5hjfQ7mds81bT"
+            },
+            {
+              "name": "bevel_angle",
+              "id": "LQSmercoRIk4p6Km3qvo"
+            },
+            {
+              "name": "bevel_width",
+              "id": "oUzpWSHhwqAQDPhfS7tb"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Beschreibe diese Funktion …",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "bevelGear"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "os_variable_set",
+              "id": "q7JazrmIpV1SVbyt0dQw",
+              "fields": {
+                "VAR": {
+                  "id": "BwjZYKBGTR5VuP3SqXYF"
+                }
+              },
+              "inputs": {
+                "VALUE": {
+                  "block": {
+                    "type": "text",
+                    "id": "DRHW2wSouzNyZljFnPns",
+                    "fields": {
+                      "TEXT": "bevel"
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "os_raw_code",
+                  "id": "w8D8B3JduBSTrBmZyjHj",
+                  "fields": {
+                    "CODE": "// Quelle: https://www.printables.com/model/1810383-fully-parametric-gear-generator-circular-bevel-gea/files\n// =================================================================\n// --- PARAMETERS CONFIGURATION ---\n// =================================================================\n\n// Mode selector: Use \"circular\" for flat gear or \"bevel\" for cone gear\n//gear_type       = \"circular\"; // Choose either \"circular\" or \"bevel\"\n\n// General gear parameters\n//tooth_pitch     = 5;      // Tooth Pitch\n//pressure_angle  = 15.5;   // Pressure Angle\n//addendum        = 1.5;    // Addendum height\n//dedendum        = 1.5;    // Dedendum height\n\n// Circular Gear parameters\n//circular_tooth_count = 7; // Number of teeth\n//circular_height      = 11; // Extrusion height (gear thickness)\n//bore_diameter        = 2;  // Central bore hole diameter\n\n// Bevel Gear parameters\nbevel_tooth_count    = 20; // Number of teeth\nbevel_angle          = 45; // Pitch cone angle\nbevel_width          = 5;  // Face width of the gear blank\n\n// Geometry system variables\nxw = 2; // Extra wall thickness for the bore hole\npi = 3.141592654;\n\n// =================================================================\n// --- INTERNAL FUNCTIONS AND MODULES (DO NOT MODIFY) ---\n// =================================================================\n\nfunction toothOffset(toothHeight, toothWidth, traversedDist) = \n    (abs((traversedDist % toothWidth) - (toothWidth/2)) - toothWidth/4) * (toothHeight / toothWidth);\n\nfunction mapTooth(pt, normAng, toothHeight, toothWidth, traversedDist) = [\n    pt[0] + cos(normAng) * toothOffset(toothHeight, toothWidth, traversedDist), \n    pt[1] + sin(normAng) * toothOffset(toothHeight, toothWidth, traversedDist)\n];\n\nfunction mapBevel(sr, gr, theta, toothHeight, toothWidth, traversedDist) = \n    (sr - toothOffset(toothHeight, toothWidth, traversedDist)) * [cos(theta), sin(theta)];\n\nfunction getNormal(p1, p2) = atan2((p2-p1)[1], (p2-p1)[0]) + 90;\n\nfunction cumDist(distPath, distArray = [0]) = \n    (len(distArray) >= len(distPath)) ? distArray : cumDist(distPath, concat(distArray, [norm(distPath[len(distArray)-1] - distPath[len(distArray)]) + distArray[len(distArray)-1]]));\n\nmodule bevelTooth(gearRadius, bevelAngle, bevelWidth, toothHeight, toothWidth, $fn=60){\n    gr = gearRadius;\n    tw = toothWidth;\n    ta = (tw / (pi * 2 * gr)) * 360; \n    tdd = toothWidth / ta; \n    toothCurve = [for (theta = [(-ta/2):(ta/$fn):(ta/2)]) mapBevel(sr=gr / sin(bevelAngle), gr=gearRadius, theta=theta, toothHeight=toothHeight, toothWidth=toothWidth, traversedDist=(theta+ta/2)*tdd)];\n    rotate([0,-bevelAngle,0]) linear_extrude(height=bevelWidth, center=true) polygon(points=toothCurve);\n}\n\nmodule toothExtrude(extrudePath, toothWidth, toothHeight){\n    extrudePathDist = cumDist(extrudePath);\n    toothPath = [for (i = [1 : (len(extrudePath)-1)] ) mapTooth((extrudePath[i-1]+extrudePath[i])/2, getNormal(extrudePath[i-1],extrudePath[i]), toothHeight=toothHeight, toothWidth=toothWidth, traversedDist = (extrudePathDist[i-1] + extrudePathDist[i])/2)];\n    polygon(points = toothPath);\n}\n\nmodule circularGear(radius = -1, toothPitch = -1, toothCount = 7, addendum = 7, dedendum = 6, pressureAngle = 15.5){\n    if(((radius == -1) && (toothPitch == -1)) || ((radius != -1) && (toothPitch != -1))){\n        echo(\"one (and only one) of radius or toothPitch must be specified\");\n    }\n    tw = (toothPitch == -1) ? 2 * radius * pi / toothCount : toothPitch;\n    gr = (radius == -1) ? (tw * toothCount) / (2 * pi) : radius;\n    union(){\n        intersection(){\n            th = (tw/2) / tan(pressureAngle);\n            toothExtrude(extrudePath = [for (t = [-180:(360/(toothCount*16)):180]) [cos(t), sin(t)]*gr], toothWidth = tw, toothHeight = th);\n            circle(r=gr+addendum, $fn=360);\n        }\n        circle(r=gr-dedendum, $fn=360);\n    }\n    echo(\"Circular Gear -> Tooth width: \", tw, \"Radius: \", gr);\n}\n\nmodule bevelGear(radius = -1, toothPitch = -1, bevelAngle = 45, width = 5, toothCount = 20, addendum = 1.5, dedendum = 1.5, pressureAngle = 15.5){\n    if(((radius == -1) && (toothPitch == -1)) || ((radius != -1) && (toothPitch != -1))){\n        echo(\"one (and only one) of radius or toothPitch must be specified\");\n    }\n    tw = (toothPitch == -1) ? 2 * radius * pi / toothCount : toothPitch;\n    gr = (radius == -1) ? (tw * toothCount) / (2 * pi) : radius;\n    \n    gr1 = gr - cos(bevelAngle) * width/2; \n    gr2 = gr + cos(bevelAngle) * width/2; \n    tw1 = 2 * gr1 * pi / toothCount;\n    tw2 = 2 * gr2 * pi / toothCount;\n    th = tw / (pi/6); \n    th1 = tw1 / (pi/6); \n    th2 = tw2 / (pi/6); \n    sr = gr / sin(bevelAngle); \n    so = gr / tan(bevelAngle); \n    so1 = gr1 / tan(bevelAngle); \n    so2 = gr2 / tan(bevelAngle); \n    \n    intersection(){\n        for(i = [0:(toothCount-1)]){\n            rotate(360*i / toothCount){\n                hull(){\n                    translate([0,0,-so1+sin(bevelAngle)*width/2]) bevelTooth(gearRadius=gr1, bevelAngle=bevelAngle, bevelWidth=0.01, toothHeight=th1, toothWidth=tw1, $fn=60);\n                    translate([0,0,-so]) bevelTooth(gearRadius=gr, bevelAngle=bevelAngle, bevelWidth=0.01, toothHeight=th, toothWidth=tw, $fn=60);\n                    translate([0,0,-so2-sin(bevelAngle)*width/2]) bevelTooth(gearRadius=gr2, bevelAngle=bevelAngle, bevelWidth=0.01, toothHeight=th2, toothWidth=tw2, $fn=60);\n                }\n            }\n        }\n        translate([0,0,-so]) sphere(r=sr+addendum, $fn = toothCount*4);\n    }\n    cr1 = gr1 - sin(bevelAngle) * dedendum;\n    cr2 = gr2 - sin(bevelAngle) * dedendum;\n    translate([0,0,-cos(bevelAngle) * dedendum]) cylinder(r2=cr1, r1=cr2, h=cos(bevelAngle) * width, center=true);\n    echo(\"Bevel Gear -> Tooth width: \", tw, \"Radius: \", gr);\n}\n\n// =================================================================\n// --- MODEL ASSEMBLY AND OUTPUT ---\n// =================================================================\n\nif (gear_type == \"circular\") {\n    // Render Circular Gear\n    linear_extrude(height=circular_height){\n        difference(){\n            circularGear(\n                toothPitch=tooth_pitch, \n                toothCount=circular_tooth_count, \n                addendum=addendum, \n                dedendum=dedendum, \n                pressureAngle=pressure_angle\n            );\n            circle(d=bore_diameter+xw, $fn=60);\n        }\n    }\n} else if (gear_type == \"bevel\") {\n    // Render Bevel Gear\n    difference() {\n        bevelGear(\n            toothPitch=tooth_pitch, \n            bevelAngle=bevel_angle, \n            width=bevel_width, \n            toothCount=bevel_tooth_count, \n            addendum=addendum, \n            dedendum=dedendum, \n            pressureAngle=pressure_angle\n        );\n        cylinder(d=bore_diameter, h=bevel_width*4, center=true, $fn=60);\n    }\n} else {\n    echo(\"ERROR: Unknown gear_type! Please choose 'circular' or 'bevel'.\");\n}\n"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_defnoreturn",
+        "id": "9JXaz6DV4phikicSgtAA",
+        "x": 30,
+        "y": 343,
+        "extraState": {
+          "params": [
+            {
+              "name": "tooth_pitch",
+              "id": "Zao5p1eFryEBUqBe3ZGu"
+            },
+            {
+              "name": "pressure_angle",
+              "id": "UjpuHOReBZR79fDKu5jU"
+            },
+            {
+              "name": "addendum",
+              "id": "fuj2goajUvINnuGUS2PM"
+            },
+            {
+              "name": "dedendum",
+              "id": "snZrCn1QjysAt9xcbexI"
+            },
+            {
+              "name": "circular_tooth_count",
+              "id": "8rueLL3zuhNjfwWBAxyZ"
+            },
+            {
+              "name": "circular_height",
+              "id": "F37IAFWpiIUt8oPubrRZ"
+            },
+            {
+              "name": "bore_diameter",
+              "id": "sTTIFob25JVacKF2zgEQ"
+            }
+          ]
+        },
+        "icons": {
+          "comment": {
+            "text": "Beschreibe diese Funktion …",
+            "pinned": false,
+            "height": 80,
+            "width": 160
+          }
+        },
+        "fields": {
+          "NAME": "circular"
+        },
+        "inputs": {
+          "STACK": {
+            "block": {
+              "type": "os_variable_set",
+              "id": "yMe2d6l0vy1ZZ861UdHN",
+              "fields": {
+                "VAR": {
+                  "id": "BwjZYKBGTR5VuP3SqXYF"
+                }
+              },
+              "inputs": {
+                "VALUE": {
+                  "block": {
+                    "type": "text",
+                    "id": "96M15BZ3alOShaKVPulk",
+                    "fields": {
+                      "TEXT": "circular"
+                    }
+                  }
+                }
+              },
+              "next": {
+                "block": {
+                  "type": "os_raw_code",
+                  "id": "jVNlRFGttoVuo4HGMnBe",
+                  "fields": {
+                    "CODE": "// Quelle: https://www.printables.com/model/1810383-fully-parametric-gear-generator-circular-bevel-gea/files\n// =================================================================\n// --- PARAMETERS CONFIGURATION ---\n// =================================================================\n\n// Mode selector: Use \"circular\" for flat gear or \"bevel\" for cone gear\n//gear_type       = \"circular\"; // Choose either \"circular\" or \"bevel\"\n\n// General gear parameters\n//tooth_pitch     = 5;      // Tooth Pitch\n//pressure_angle  = 15.5;   // Pressure Angle\n//addendum        = 1.5;    // Addendum height\n//dedendum        = 1.5;    // Dedendum height\n\n// Circular Gear parameters\n//circular_tooth_count = 7; // Number of teeth\n//circular_height      = 11; // Extrusion height (gear thickness)\n//bore_diameter        = 2;  // Central bore hole diameter\n\n// Bevel Gear parameters\nbevel_tooth_count    = 20; // Number of teeth\nbevel_angle          = 45; // Pitch cone angle\nbevel_width          = 5;  // Face width of the gear blank\n\n// Geometry system variables\nxw = 2; // Extra wall thickness for the bore hole\npi = 3.141592654;\n\n// =================================================================\n// --- INTERNAL FUNCTIONS AND MODULES (DO NOT MODIFY) ---\n// =================================================================\n\nfunction toothOffset(toothHeight, toothWidth, traversedDist) = \n    (abs((traversedDist % toothWidth) - (toothWidth/2)) - toothWidth/4) * (toothHeight / toothWidth);\n\nfunction mapTooth(pt, normAng, toothHeight, toothWidth, traversedDist) = [\n    pt[0] + cos(normAng) * toothOffset(toothHeight, toothWidth, traversedDist), \n    pt[1] + sin(normAng) * toothOffset(toothHeight, toothWidth, traversedDist)\n];\n\nfunction mapBevel(sr, gr, theta, toothHeight, toothWidth, traversedDist) = \n    (sr - toothOffset(toothHeight, toothWidth, traversedDist)) * [cos(theta), sin(theta)];\n\nfunction getNormal(p1, p2) = atan2((p2-p1)[1], (p2-p1)[0]) + 90;\n\nfunction cumDist(distPath, distArray = [0]) = \n    (len(distArray) >= len(distPath)) ? distArray : cumDist(distPath, concat(distArray, [norm(distPath[len(distArray)-1] - distPath[len(distArray)]) + distArray[len(distArray)-1]]));\n\nmodule bevelTooth(gearRadius, bevelAngle, bevelWidth, toothHeight, toothWidth, $fn=60){\n    gr = gearRadius;\n    tw = toothWidth;\n    ta = (tw / (pi * 2 * gr)) * 360; \n    tdd = toothWidth / ta; \n    toothCurve = [for (theta = [(-ta/2):(ta/$fn):(ta/2)]) mapBevel(sr=gr / sin(bevelAngle), gr=gearRadius, theta=theta, toothHeight=toothHeight, toothWidth=toothWidth, traversedDist=(theta+ta/2)*tdd)];\n    rotate([0,-bevelAngle,0]) linear_extrude(height=bevelWidth, center=true) polygon(points=toothCurve);\n}\n\nmodule toothExtrude(extrudePath, toothWidth, toothHeight){\n    extrudePathDist = cumDist(extrudePath);\n    toothPath = [for (i = [1 : (len(extrudePath)-1)] ) mapTooth((extrudePath[i-1]+extrudePath[i])/2, getNormal(extrudePath[i-1],extrudePath[i]), toothHeight=toothHeight, toothWidth=toothWidth, traversedDist = (extrudePathDist[i-1] + extrudePathDist[i])/2)];\n    polygon(points = toothPath);\n}\n\nmodule circularGear(radius = -1, toothPitch = -1, toothCount = 7, addendum = 7, dedendum = 6, pressureAngle = 15.5){\n    if(((radius == -1) && (toothPitch == -1)) || ((radius != -1) && (toothPitch != -1))){\n        echo(\"one (and only one) of radius or toothPitch must be specified\");\n    }\n    tw = (toothPitch == -1) ? 2 * radius * pi / toothCount : toothPitch;\n    gr = (radius == -1) ? (tw * toothCount) / (2 * pi) : radius;\n    union(){\n        intersection(){\n            th = (tw/2) / tan(pressureAngle);\n            toothExtrude(extrudePath = [for (t = [-180:(360/(toothCount*16)):180]) [cos(t), sin(t)]*gr], toothWidth = tw, toothHeight = th);\n            circle(r=gr+addendum, $fn=360);\n        }\n        circle(r=gr-dedendum, $fn=360);\n    }\n    echo(\"Circular Gear -> Tooth width: \", tw, \"Radius: \", gr);\n}\n\nmodule bevelGear(radius = -1, toothPitch = -1, bevelAngle = 45, width = 5, toothCount = 20, addendum = 1.5, dedendum = 1.5, pressureAngle = 15.5){\n    if(((radius == -1) && (toothPitch == -1)) || ((radius != -1) && (toothPitch != -1))){\n        echo(\"one (and only one) of radius or toothPitch must be specified\");\n    }\n    tw = (toothPitch == -1) ? 2 * radius * pi / toothCount : toothPitch;\n    gr = (radius == -1) ? (tw * toothCount) / (2 * pi) : radius;\n    \n    gr1 = gr - cos(bevelAngle) * width/2; \n    gr2 = gr + cos(bevelAngle) * width/2; \n    tw1 = 2 * gr1 * pi / toothCount;\n    tw2 = 2 * gr2 * pi / toothCount;\n    th = tw / (pi/6); \n    th1 = tw1 / (pi/6); \n    th2 = tw2 / (pi/6); \n    sr = gr / sin(bevelAngle); \n    so = gr / tan(bevelAngle); \n    so1 = gr1 / tan(bevelAngle); \n    so2 = gr2 / tan(bevelAngle); \n    \n    intersection(){\n        for(i = [0:(toothCount-1)]){\n            rotate(360*i / toothCount){\n                hull(){\n                    translate([0,0,-so1+sin(bevelAngle)*width/2]) bevelTooth(gearRadius=gr1, bevelAngle=bevelAngle, bevelWidth=0.01, toothHeight=th1, toothWidth=tw1, $fn=60);\n                    translate([0,0,-so]) bevelTooth(gearRadius=gr, bevelAngle=bevelAngle, bevelWidth=0.01, toothHeight=th, toothWidth=tw, $fn=60);\n                    translate([0,0,-so2-sin(bevelAngle)*width/2]) bevelTooth(gearRadius=gr2, bevelAngle=bevelAngle, bevelWidth=0.01, toothHeight=th2, toothWidth=tw2, $fn=60);\n                }\n            }\n        }\n        translate([0,0,-so]) sphere(r=sr+addendum, $fn = toothCount*4);\n    }\n    cr1 = gr1 - sin(bevelAngle) * dedendum;\n    cr2 = gr2 - sin(bevelAngle) * dedendum;\n    translate([0,0,-cos(bevelAngle) * dedendum]) cylinder(r2=cr1, r1=cr2, h=cos(bevelAngle) * width, center=true);\n    echo(\"Bevel Gear -> Tooth width: \", tw, \"Radius: \", gr);\n}\n\n// =================================================================\n// --- MODEL ASSEMBLY AND OUTPUT ---\n// =================================================================\n\nif (gear_type == \"circular\") {\n    // Render Circular Gear\n    linear_extrude(height=circular_height){\n        difference(){\n            circularGear(\n                toothPitch=tooth_pitch, \n                toothCount=circular_tooth_count, \n                addendum=addendum, \n                dedendum=dedendum, \n                pressureAngle=pressure_angle\n            );\n            circle(d=bore_diameter+xw, $fn=60);\n        }\n    }\n} else if (gear_type == \"bevel\") {\n    // Render Bevel Gear\n    difference() {\n        bevelGear(\n            toothPitch=tooth_pitch, \n            bevelAngle=bevel_angle, \n            width=bevel_width, \n            toothCount=bevel_tooth_count, \n            addendum=addendum, \n            dedendum=dedendum, \n            pressureAngle=pressure_angle\n        );\n        cylinder(d=bore_diameter, h=bevel_width*4, center=true, $fn=60);\n    }\n} else {\n    echo(\"ERROR: Unknown gear_type! Please choose 'circular' or 'bevel'.\");\n}\n"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "os_translate",
+        "id": "Vp5nyCyzJGpmXXY44cdu",
+        "x": 43,
+        "y": 598,
+        "extraState": {
+          "operandCount": 1
+        },
+        "inputs": {
+          "X": {
+            "shadow": {
+              "type": "math_number",
+              "id": "viEvXZ75QG9OSbSbW7C1",
+              "fields": {
+                "NUM": 0
+              }
+            }
+          },
+          "Y": {
+            "shadow": {
+              "type": "math_number",
+              "id": "h48gn3kF3TlTASnMoSYT",
+              "fields": {
+                "NUM": 0
+              }
+            },
+            "block": {
+              "type": "math_number",
+              "id": "s8cXwXehJR2JTZIDh22L",
+              "fields": {
+                "NUM": 30
+              }
+            }
+          },
+          "Z": {
+            "shadow": {
+              "type": "math_number",
+              "id": "S8Awp4QqHS8moK8TUGuX",
+              "fields": {
+                "NUM": 0
+              }
+            }
+          },
+          "DO0": {
+            "block": {
+              "type": "procedures_callnoreturn",
+              "id": "XHOqbP3hM4slvwDUfjWa",
+              "extraState": {
+                "name": "bevelGear",
+                "params": [
+                  "tooth_pitch",
+                  "pressure_angle",
+                  "addendum",
+                  "dedendum",
+                  "bevel_tooth_count",
+                  "bevel_angle",
+                  "bevel_width"
+                ]
+              },
+              "inputs": {
+                "ARG0": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "iBgaiumYB4YDX060sR5J",
+                    "fields": {
+                      "NUM": 5
+                    }
+                  }
+                },
+                "ARG1": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "tkcRwHHm9yiJ1V4LvbVL",
+                    "fields": {
+                      "NUM": 15.5
+                    }
+                  }
+                },
+                "ARG2": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "tROluUHyTj4WwV7Ufb1S",
+                    "fields": {
+                      "NUM": 1.5
+                    }
+                  }
+                },
+                "ARG3": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "X1hzhoI2Aks2xzIi8n1Z",
+                    "fields": {
+                      "NUM": 1.5
+                    }
+                  }
+                },
+                "ARG4": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "03N5vWMDhBFXvkdrvtEn",
+                    "fields": {
+                      "NUM": 20
+                    }
+                  }
+                },
+                "ARG5": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "13sDfI5rvIAdDKzvjatG",
+                    "fields": {
+                      "NUM": 45
+                    }
+                  }
+                },
+                "ARG6": {
+                  "block": {
+                    "type": "math_number",
+                    "id": "nqO52fTq1PD78D81yxLt",
+                    "fields": {
+                      "NUM": 5
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "type": "procedures_callnoreturn",
+        "id": "p6vcHKOXU4yFH6lCmtq2",
+        "x": 397,
+        "y": 605,
+        "extraState": {
+          "name": "circular",
+          "params": [
+            "tooth_pitch",
+            "pressure_angle",
+            "addendum",
+            "dedendum",
+            "circular_tooth_count",
+            "circular_height",
+            "bore_diameter"
+          ]
+        },
+        "inputs": {
+          "ARG0": {
+            "block": {
+              "type": "math_number",
+              "id": "JH0rMxKN9GGrsiR9jz1x",
+              "fields": {
+                "NUM": 5
+              }
+            }
+          },
+          "ARG1": {
+            "block": {
+              "type": "math_number",
+              "id": "vgX1gjNVCCnaVVxGYmqy",
+              "fields": {
+                "NUM": 15.5
+              }
+            }
+          },
+          "ARG2": {
+            "block": {
+              "type": "math_number",
+              "id": "EczIkKfGcLyL90UD23aA",
+              "fields": {
+                "NUM": 1.5
+              }
+            }
+          },
+          "ARG3": {
+            "block": {
+              "type": "math_number",
+              "id": "Vii36IXsf6CRLorMCEQC",
+              "fields": {
+                "NUM": 1.5
+              }
+            }
+          },
+          "ARG4": {
+            "block": {
+              "type": "math_number",
+              "id": "OxAoPH0uj9ldfBi0NnIQ",
+              "fields": {
+                "NUM": 7
+              }
+            }
+          },
+          "ARG5": {
+            "block": {
+              "type": "math_number",
+              "id": "ZvYM0OyxwbqTCiMqRLe5",
+              "fields": {
+                "NUM": 10
+              }
+            }
+          },
+          "ARG6": {
+            "block": {
+              "type": "math_number",
+              "id": "Rk04OER880ZIhg0etQsF",
+              "fields": {
+                "NUM": 2
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "type",
+      "id": "MqBlhLgCclkkdGspmKGT"
+    },
+    {
+      "name": "x",
+      "id": "uuDZgIJMZJ32hWtZpXgy"
+    },
+    {
+      "name": "gear_type",
+      "id": "BwjZYKBGTR5VuP3SqXYF"
+    },
+    {
+      "name": "tooth_pitch",
+      "id": "Zao5p1eFryEBUqBe3ZGu"
+    },
+    {
+      "name": "pressure_angle",
+      "id": "UjpuHOReBZR79fDKu5jU"
+    },
+    {
+      "name": "addendum",
+      "id": "fuj2goajUvINnuGUS2PM"
+    },
+    {
+      "name": "dedendum",
+      "id": "snZrCn1QjysAt9xcbexI"
+    },
+    {
+      "name": "tooth_count",
+      "id": "9YaV7ZEYwtmoKYxSREVU"
+    },
+    {
+      "name": "angle",
+      "id": "qMfHDZNHgxIacl0pEKw9"
+    },
+    {
+      "name": "diameter",
+      "id": "xmhOmL1dpwBTsoLpmP1x"
+    },
+    {
+      "name": "width",
+      "id": "903RgUcssWOEOaQID8zN"
+    },
+    {
+      "name": "height",
+      "id": "i86VobpiSDUghWcaXOgF"
+    },
+    {
+      "name": "circular_tooth_count",
+      "id": "8rueLL3zuhNjfwWBAxyZ"
+    },
+    {
+      "name": "circular_height",
+      "id": "F37IAFWpiIUt8oPubrRZ"
+    },
+    {
+      "name": "circular_diameter",
+      "id": "Kj3cg4GM9zDViY4HpN2O"
+    },
+    {
+      "name": "bore_diameter",
+      "id": "sTTIFob25JVacKF2zgEQ"
+    },
+    {
+      "name": "bevel_tooth_count",
+      "id": "Cid0SLo5hjfQ7mds81bT"
+    },
+    {
+      "name": "bevel_angle",
+      "id": "LQSmercoRIk4p6Km3qvo"
+    },
+    {
+      "name": "bevel_width",
+      "id": "oUzpWSHhwqAQDPhfS7tb"
+    }
+  ],
+  "cadium": {
+    "projectName": "OSCAD_GEAR_SAMPLE",
+    "counter": "001"
+  }
+}

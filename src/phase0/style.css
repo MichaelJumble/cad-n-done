@@ -1,0 +1,36 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 1.5rem;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+section {
+  margin-block: 2rem;
+  padding-block: 1rem;
+  border-top: 1px solid #8888;
+}
+
+.status {
+  font-weight: bold;
+}
+
+.status[data-ok='true'] {
+  color: #1a7f37;
+}
+
+.status[data-ok='false'] {
+  color: #cf222e;
+}
+
+pre {
+  background: #8881;
+  padding: 0.75rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}

@@ -1,0 +1,2316 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="CAD N'Done - der kostenlose Blockly-Editor für OpenSCAD. Parametrische 3D-Modelle per Drag & Drop bauen, live im Browser rendern - kein Server, kein Account, keine Installation."
+    />
+    <meta
+      name="keywords"
+      content="CAD N'Done, BlocksCAD, Blockly, OpenSCAD, 3D-Druck, 3D-Modellierung, 3D-Projekte, Blockly-Editor, visueller CAD-Editor, parametrisches Design, Schule, Unterricht, Ausbildung, MINT, Hobby, DIY, Do it yourself, 3D-Drucker, kostenloser CAD-Editor, CAD für Anfänger, 3D-Design im Browser"
+    />
+    <title>CAD N'Done – Parametric Design, Block by Block</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --primary: #52616f;
+        --primary-dark: #262e35;
+        --accent: #dcae74;
+        --accent-dark: #bb8a4c;
+        --bg: #f3efe6;
+        --bg-muted: #e9e2d2;
+        --surface: #ffffff;
+        --text: #2b2b2b;
+        --text-light: #686860;
+        --radius: 12px;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      h1,
+      h2,
+      .nav-brand,
+      .btn-primary,
+      .btn-outline {
+        font-family: 'Oswald', 'Roboto', sans-serif;
+      }
+
+      /* ── NAV ── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--primary-dark);
+        padding: 0.7rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+        gap: 1rem;
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .nav-brand img {
+        height: 30px;
+        width: auto;
+        display: block;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.6rem;
+      }
+
+      .nav-links a {
+        color: rgba(255, 255, 255, 0.82);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s;
+        white-space: nowrap;
+      }
+
+      .nav-links a:hover {
+        color: var(--accent);
+      }
+
+      .lang-switch {
+        display: flex;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .lang-switch button {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.78rem;
+        font-weight: 700;
+        font-family: inherit;
+        padding: 0.35rem 0.7rem;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+
+      .lang-switch button[aria-pressed='true'] {
+        background: var(--accent);
+        color: #241505;
+      }
+
+      .btn-nav-cta {
+        background: var(--accent);
+        color: #241505;
+        font-weight: 700;
+        padding: 0.5rem 1.1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.88rem;
+        white-space: nowrap;
+        transition:
+          background 0.2s,
+          transform 0.15s;
+      }
+      .btn-nav-cta:hover {
+        background: var(--accent-dark);
+        transform: translateY(-1px);
+      }
+
+      /* ── HERO ── */
+      .hero {
+        background: linear-gradient(135deg, var(--bg) 0%, #fff 100%);
+        position: relative;
+        overflow: hidden;
+        padding: 5.5rem 2rem 5rem;
+        text-align: center;
+      }
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url('/images/cat.png');
+        background-repeat: no-repeat;
+        background-position: center 10%;
+        /* Auf die Hoehe statt die Breite skaliert - die Hero-Hoehe bleibt
+           ueber alle Bildschirmbreiten hinweg fast konstant (sie haengt
+           an Padding/Textinhalt, nicht an der Breite), waehrend die Breite
+           stark variiert. Bei breitenbasierter Skalierung wurde der Kopf auf
+           breiten Bildschirmen so gross, dass sein unterer Teil vom
+           "overflow: hidden" der Hero-Sektion abgeschnitten wurde. */
+        background-size: auto 85%;
+        opacity: 0.18;
+        pointer-events: none;
+      }
+
+      .hero-inner {
+        position: relative;
+      }
+
+      .hero-badge {
+        display: inline-block;
+        background: var(--bg-muted);
+        color: var(--primary-dark);
+        border: 1.5px solid var(--primary);
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.3rem 1rem;
+        margin-bottom: 1.8rem;
+      }
+
+      .hero-logo {
+        margin-bottom: 1.2rem;
+      }
+      .hero-logo img {
+        width: 100%;
+        max-width: 480px;
+        height: auto;
+      }
+
+      .hero-tagline {
+        font-family: 'Oswald', sans-serif;
+        font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        color: var(--accent-dark);
+        text-transform: uppercase;
+        margin-bottom: 1.3rem;
+      }
+
+      .hero-sub {
+        font-size: 1.15rem;
+        color: var(--text-light);
+        max-width: 620px;
+        margin: 0 auto 2.5rem;
+        font-weight: 400;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #241505;
+        font-weight: 700;
+        padding: 0.9rem 2.1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 1.05rem;
+        transition:
+          background 0.2s,
+          transform 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-dark);
+        transform: translateY(-2px);
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: var(--primary-dark);
+        border: 2px solid var(--primary);
+        font-weight: 700;
+        padding: 0.85rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 1rem;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+
+      .btn-outline:hover {
+        background: var(--primary-dark);
+        color: #fff;
+        border-color: var(--primary-dark);
+      }
+
+      /* ── SECTION WRAPPER ── */
+      section {
+        padding: 4.5rem 2rem;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .section-label {
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        color: var(--accent-dark);
+        margin-bottom: 0.6rem;
+      }
+
+      .section-title {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.8rem;
+        line-height: 1.2;
+      }
+
+      .section-desc {
+        color: var(--text-light);
+        font-size: 1.05rem;
+        max-width: 680px;
+        margin-bottom: 2.5rem;
+      }
+
+      /* ── WARUM (HIGHLIGHT) SECTION ── */
+      #warum {
+        background: var(--primary-dark);
+        color: #fff;
+      }
+
+      #warum .section-label {
+        color: var(--accent);
+      }
+      #warum .section-title {
+        color: #fff;
+      }
+      #warum .section-desc {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .problem-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+
+      .problem-card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        transition: background 0.2s;
+      }
+
+      .problem-card:hover {
+        background: rgba(255, 255, 255, 0.11);
+      }
+
+      .problem-card .icon {
+        font-size: 1.8rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .problem-card h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+      }
+
+      .problem-card p {
+        font-size: 0.92rem;
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.6;
+      }
+
+      /* ── FUNKTIONEN SECTION ── */
+      #funktionen {
+        background: var(--bg);
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+
+      .feature-card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.8rem;
+        border-left: 6px solid var(--accent);
+        box-shadow: 0 2px 12px rgba(38, 46, 53, 0.07);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(38, 46, 53, 0.12);
+      }
+
+      .feature-card.accent-primary {
+        border-left-color: var(--primary);
+      }
+
+      .feature-icon {
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .feature-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+      }
+
+      .feature-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+
+      .feature-list li {
+        font-size: 0.92rem;
+        color: var(--text-light);
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .feature-list li::before {
+        content: '✓';
+        color: var(--accent-dark);
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-top: 0.05rem;
+      }
+
+      /* ── WERKZEUGE (ADMIN-STYLE GRID) ── */
+      #werkzeuge {
+        background: var(--bg-muted);
+      }
+
+      .tool-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.2rem;
+      }
+
+      .tool-card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.4rem 1.6rem;
+        box-shadow: 0 2px 8px rgba(38, 46, 53, 0.06);
+        border-top: 4px solid var(--accent);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .tool-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(38, 46, 53, 0.12);
+      }
+
+      .tool-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .tool-card-icon {
+        font-size: 1.5rem;
+      }
+
+      .tool-card h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin: 0;
+      }
+
+      .tool-card p {
+        font-size: 0.88rem;
+        color: var(--text-light);
+        line-height: 1.55;
+      }
+
+      /* ── VERGLEICH (BLOCKSCAD ROTATOR) SECTION ── */
+      #vergleich {
+        background: var(--bg);
+      }
+
+      .compare-carousel {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        max-width: 640px;
+        margin: 0 auto;
+      }
+
+      /* Kein fixiertes height: Bei axis:row waechst die Kreuzachse (Hoehe)
+         eines Flex-Containers ganz normal mit dem hoechsten Kind mit - so
+         ist automatisch garantiert, dass auch die laengste Karte nie
+         abgeschnitten wird, egal welche Karte gerade sichtbar ist. */
+      .compare-scroll-viewport {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .compare-scroll-content {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .compare-card {
+        flex: 0 0 100%;
+        width: 100%;
+        box-sizing: border-box;
+        background: var(--surface);
+        border-radius: var(--radius);
+        border-top: 4px solid var(--accent);
+        box-shadow: 0 2px 8px rgba(38, 46, 53, 0.06);
+        padding: 1.5rem 1.6rem;
+      }
+
+      .compare-card-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+      .compare-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.7rem;
+      }
+
+      .compare-problem {
+        font-size: 0.92rem;
+        color: var(--text-light);
+        line-height: 1.55;
+        margin-bottom: 0.8rem;
+      }
+
+      .compare-solution {
+        font-size: 0.92rem;
+        color: var(--text);
+        line-height: 1.55;
+      }
+
+      .compare-nav {
+        flex-shrink: 0;
+        width: 2.4rem;
+        height: 2.4rem;
+        border-radius: 50%;
+        border: 1.5px solid var(--primary);
+        background: var(--surface);
+        color: var(--primary-dark);
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          color 0.2s,
+          opacity 0.2s;
+      }
+
+      .compare-nav:hover:not(:disabled) {
+        background: var(--primary-dark);
+        color: #fff;
+      }
+
+      .compare-counter {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: var(--text-light);
+      }
+
+      /* ── UPDATE (NEUIGKEITEN) SECTION ── */
+      #update {
+        background: var(--bg-muted);
+      }
+
+      .update-scroll-viewport {
+        height: 180px;
+        overflow: hidden;
+        position: relative;
+        max-width: 700px;
+        margin: 0 auto;
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(38, 46, 53, 0.1);
+        border-left: 6px solid var(--accent);
+      }
+
+      .update-scroll-content {
+        display: flex;
+        flex-direction: column;
+        will-change: transform;
+        transform: translateY(0);
+      }
+
+      .update-entry {
+        height: 180px;
+        font-size: 1rem;
+        color: var(--text);
+        line-height: 1.4;
+        overflow: hidden;
+      }
+
+      .update-entry strong {
+        display: block;
+        font-weight: bold;
+        color: var(--primary-dark);
+        margin-bottom: 0.3rem;
+      }
+
+      .update-hint {
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-top: 0.7rem;
+      }
+
+      /* ── TEAM SECTION ── */
+      #team {
+        background: var(--bg);
+      }
+
+      .team-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .team-image {
+        width: 100%;
+        max-width: 700px;
+        border-radius: var(--radius);
+        box-shadow: 0 4px 16px rgba(38, 46, 53, 0.15);
+      }
+
+      .dev-scroll-viewport {
+        height: 100px;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(38, 46, 53, 0.1);
+        border-left: 6px solid var(--accent);
+      }
+
+      .dev-scroll-content {
+        display: flex;
+        flex-direction: column;
+        will-change: transform;
+        transform: translateY(0);
+      }
+
+      .dev-entry {
+        height: 120px;
+        padding: 0.5rem 0.5rem;
+        font-size: 1rem;
+        color: var(--primary-dark);
+        line-height: 1.5;
+      }
+
+      .dev-entry strong {
+        color: var(--primary-dark);
+      }
+      .dev-entry em {
+        color: var(--text-light);
+        font-size: 0.88rem;
+      }
+
+      /* ── TECH SECTION ── */
+      #technologie {
+        background: var(--bg);
+      }
+
+      .tech-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .tech-pill {
+        background: var(--surface);
+        border: 1.5px solid #ddd4c4;
+        border-radius: 999px;
+        padding: 0.7rem 1.4rem;
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--primary-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .tech-pill span {
+        font-size: 1.1rem;
+      }
+
+      /* ── CTA ── */
+      #cta {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        text-align: center;
+        color: #fff;
+        padding: 5rem 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #cta .container {
+        position: relative;
+      }
+
+      .cta-cat {
+        width: 400px;
+        height: auto;
+        margin: 0.25rem auto 1.5rem;
+        opacity: 0.55;
+        display: block;
+      }
+
+      #cta .section-title {
+        color: #fff;
+        margin-bottom: 1rem;
+      }
+      #cta .section-desc {
+        color: rgba(255, 255, 255, 0.78);
+        margin: 0 auto 2.5rem;
+      }
+
+      .punchline {
+        font-family: 'Oswald', sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+        margin: 1.75rem 0 2rem;
+      }
+
+      .hero .punchline {
+        color: var(--accent-dark);
+      }
+
+      /* ── KLEINER-BILDSCHIRM-HINWEIS ── */
+      #small-screen-notice {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+      }
+      #small-screen-notice.open {
+        display: flex;
+      }
+      .small-screen-notice-box {
+        max-width: 360px;
+        background: var(--surface);
+        color: var(--text);
+        border-radius: var(--radius);
+        padding: 1.75rem;
+        text-align: center;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        border-top: 4px solid var(--accent);
+      }
+      .small-screen-notice-box p {
+        margin: 0 0 1.25rem;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        color: var(--text-light);
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        background: var(--primary-dark);
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.85rem;
+      }
+
+      footer strong {
+        color: var(--accent);
+      }
+
+      footer a {
+        color: var(--accent);
+        margin: 0 1rem;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 640px) {
+        nav {
+          padding: 0.7rem 1rem;
+        }
+        .nav-links a:not(.btn-nav-cta) {
+          display: none;
+        }
+        .hero {
+          padding: 3.5rem 1.2rem 3rem;
+        }
+        .hero::before {
+          background-size: 78% auto;
+        }
+        section {
+          padding: 3rem 1.2rem;
+        }
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
+        .problem-grid {
+          grid-template-columns: 1fr;
+        }
+        .cta-cat {
+          width: 300px;
+        }
+        .compare-carousel {
+          gap: 0.5rem;
+        }
+        .compare-nav {
+          width: 2rem;
+          height: 2rem;
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAV -->
+    <nav>
+      <div class="nav-brand">
+        <img src="/images/logo2.png" alt="CAD N'Done" />
+      </div>
+      <div class="nav-links">
+        <a href="#warum" data-i18n="nav.why">Warum</a>
+        <a href="#update">Update</a>
+        <a href="#funktionen" data-i18n="nav.features">Funktionen</a>
+        <a href="#werkzeuge" data-i18n="nav.tools">Werkzeuge</a>
+        <a href="#vergleich" data-i18n="nav.comparison">Vergleich</a>
+        <a href="#technologie" data-i18n="nav.technology">Technologie</a>
+        <a href="#team">Team</a>
+        <div class="lang-switch" role="group" aria-label="Sprache / Language">
+          <button type="button" data-lang="de" aria-pressed="true">DE</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <a href="startcadndone.html" class="btn-nav-cta">Let's CAD</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <p class="hero-badge">4 Your Design:</p>
+        <h1 class="hero-logo">
+          <img src="/images/logo2.png" alt="CAD N'Done" />
+        </h1>
+        <p class="hero-tagline">Parametric Design, Block by Block</p>
+        <p class="hero-sub" data-i18n="hero.sub">
+          Parametrische 3D-Modelle per Klick zusammenstecken statt Code zu tippen – komplett im
+          Browser gerendert. Kein Server, kein Account, keine Installation. Einfach loslegen.
+        </p>
+        <p class="punchline">Let's CAD and things Done</p>
+        <div class="hero-actions">
+          <a href="startcadndone.html" class="btn-primary"> 🐾 Let's CAD </a>
+          <a href="#funktionen" class="btn-outline" data-i18n="hero.discover"
+            >Funktionen entdecken</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- WARUM -->
+    <section id="warum">
+      <div class="container">
+        <p class="section-label" data-i18n="warum.label">Warum CAD N'Done?</p>
+        <h2 class="section-title" data-i18n="warum.title">
+          Bauen statt Tippen. Sofort. Kostenlos.
+        </h2>
+        <p class="section-desc" data-i18n="warum.desc">
+          OpenSCAD ist mächtig, aber textbasiert – jede Klammer muss sitzen. CAD N'Done übersetzt
+          dieselbe Sprache in steckbare Blöcke: keine Syntaxfehler, keine Installation, kein
+          Account. Einfach Blöcke zusammenklicken und live in 3D sehen, was daraus wird.
+        </p>
+        <div class="problem-grid">
+          <div class="problem-card">
+            <div class="icon">🆓</div>
+            <h3 data-i18n="warum.card1.title">Komplett kostenlos</h3>
+            <p data-i18n="warum.card1.desc">
+              Keine Lizenzgebühren, keine Paywall, kein Konto nötig. Browser öffnen und loslegen.
+            </p>
+          </div>
+          <div class="problem-card">
+            <div class="icon">🌐</div>
+            <h3 data-i18n="warum.card2.title">Läuft nur im Browser</h3>
+            <p data-i18n="warum.card2.desc">
+              OpenSCAD-Rendering per WebAssembly, 3D-Vorschau per Three.js – alles lokal, nichts
+              wird hochgeladen.
+            </p>
+          </div>
+          <div class="problem-card">
+            <div class="icon">🧩</div>
+            <h3 data-i18n="warum.card3.title">Blöcke statt Syntax</h3>
+            <p data-i18n="warum.card3.desc">
+              Jeder OpenSCAD-Befehl als steckbarer Block. Der Code entsteht automatisch und bleibt
+              jederzeit einsehbar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPDATE -->
+    <section id="update">
+      <div class="container">
+        <p class="section-label" data-i18n="update.label">Neuigkeiten</p>
+        <h2 class="section-title">Update</h2>
+        <p class="section-desc" data-i18n="update.desc">
+          Aktuelle Meilensteine und Neuigkeiten aus der Entwicklung von CAD N'Done.
+        </p>
+        <div class="update-scroll-viewport">
+          <div class="update-scroll-content" id="updateScroll">
+            <div class="update-entry"><br /><br /><br /><br /><br /><br /><br /></div>
+
+            <div class="update-entry" data-i18n="update.entry1">
+              <strong>19.08.2026 – Ausrichten-Werkzeug für 3D-Objekte</strong>
+              Objekte per Klick aneinander ausrichten (Anfang/Mitte/Ende je Achse) – bestehende
+              Werte bleiben erhalten, ein passender Korrektur-Block wird automatisch eingefügt.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry2">
+              <strong>22.08.2026 – Schnittebene mit Achsen-Buttons</strong>
+              Die Achsenauswahl der Schnittebene wurde vom Dropdown auf drei direkte X/Y/Z-Buttons
+              umgestellt – ein Klick statt Auswahlmenü.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry3">
+              <strong>26.08.2026 – Customizer jetzt auch im ausgelagerten Vorschaufenster</strong>
+              Regler-Änderungen lösen jetzt zuverlässig ein Rendering aus – auch wenn das
+              Vorschaufenster als eigenes, maximiertes Fenster ausgelagert ist.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry4">
+              <strong>29.08.2026 – Explosionsansicht &amp; Messwerkzeug</strong>
+              Einzelteile eines Modells auseinanderziehen und Maße direkt im 3D-Modell abgreifen –
+              beides direkt im Viewer verfügbar.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry5">
+              <strong>02.09.2026 – KI-Assistent im Editor</strong>
+              Ein integrierter Assistent hilft beim Bauen und Anpassen von Modellen – er arbeitet
+              direkt auf denselben Blöcken, nichts verschwindet in einer Blackbox.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry6">
+              <strong>05.09.2026 – Import aus SVG, Fotos und STL</strong>
+              Bestehende Zeichnungen, Fotos oder STL-Dateien lassen sich importieren und direkt als
+              Ausgangspunkt für neue Modelle weiterverwenden.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry7">
+              <strong>09.09.2026 – Mehrsprachigkeit &amp; Kontrastmodus</strong>
+              Deutsch/Englisch sowie ein eigener Kontrastmodus für bessere Zugänglichkeit sind
+              vollständig integriert.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry8">
+              <strong>12.09.2026 – Block-Stil wählbar</strong>
+              Im Menü lässt sich jetzt zwischen dem klassischen, runden Block-Look und einem
+              flacheren, moderneren Stil wechseln – ganz nach Geschmack.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry9">
+              <strong>15.09.2026 – Neuer Block-Stil: Metallic</strong>
+              Ein dritter, technischer Look ist da: eckige Ecken, echter Schlagschatten zwischen
+              verschachtelten Blöcken und ein metallischer Verlauf – experimentell im Menü unter
+              Block-Stil wählbar.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry10">
+              <strong>16.09.2026 – Neuer Block-Stil: Steampunk</strong>
+              Ein vierter, experimenteller Look ergänzt Metallic: Messing-Patina und ein
+              mechanischer Glanz-Verlauf – ebenfalls im Menü unter Block-Stil wählbar.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry11">
+              <strong>16.09.2026 – Verbindungsfehler bei Klammer-Blöcken behoben</strong>
+              Ein Fehler aus dem zugrunde liegenden Blockly-Framework, durch den Blöcke nicht
+              zuverlässig in C-förmige Klammer-Blöcke (z. B. Schleifen, Bedingungen) einrasteten,
+              wurde behoben.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry12">
+              <strong>17.09.2026 – Speichern &amp; Export überarbeitet</strong>
+              STL- und GLB-Dateien werden jetzt mit Projektname und Nummer benannt, ein neuer
+              Speichern-Button sitzt direkt im Header neben dem Zähler.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry13">
+              <strong>17.09.2026 – Kollisionserkennung bleibt an</strong>
+              Sie schaltet sich nicht mehr bei jeder Änderung ab, sondern prüft automatisch neu.
+              Schnittebene und Explosionsansicht aktivieren sich jetzt direkt beim Bewegen des
+              Reglers.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry14">
+              <strong>17.09.2026 – Farbige Notizen auf der Arbeitsfläche</strong>
+              Kommentare lassen sich jetzt per Rechtsklick anlegen und in sieben Farben einfärben –
+              praktisch, um große Designs optisch zu gliedern oder Teile zu beschriften.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry15">
+              <strong>17.09.2026 – Wandstärken-Heatmap im Viewer</strong>
+              Färbt das Modell nach lokaler Wandstärke ein (rot = dünn, blau = dick) – praktisch, um
+              vor dem Druck oder der Fertigung auf einen Blick zu sehen, wo Wände zu dünn geraten
+              sind.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry16">
+              <strong>17.09.2026 – Deutlich schnelleres Rendering</strong>
+              Ein Vergleichstest (hohle Kugel per difference(), $fn=200) brauchte in BlockSCAD 73
+              Sekunden und in OpenSCAD 89 Sekunden – in CAD N'Done nur 3 Sekunden.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry17">
+              <strong>17.09.2026 – Überarbeitetes Koordinatenraster im Viewer</strong>
+              Feines 1mm- und kräftiges 10mm-Raster mit Rand, dickere X/Y/Z-Achsen mit gestrichelten
+              Verlängerungen ins Negative, sowie ein an Hell-/Dunkelmodus angepasster Hintergrund –
+              zusammen eine deutlich klarere Orientierung in der 3D-Vorschau.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry18">
+              <strong>18.09.2026 – Transparenz für einzelne Teile</strong>
+              Im Viewer lassen sich jetzt gezielt einzelne Objekte anklicken und stufenlos
+              transparent schalten (10–80&nbsp;%) – praktisch, um innenliegende Teile eines Designs
+              zu sehen, ohne sie auszublenden.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry19">
+              <strong>24.09.2026 – Bugfix: Schleifen in der 3D-Vorschau</strong>
+              Eine Zählschleife mit fester Wiederholzahl zeigte in der 3D-Vorschau bisher nur ein
+              einzelnes Objekt beim letzten Schleifenwert statt aller Kopien – der erzeugte
+              OpenSCAD-Code selbst war davon nie betroffen. Der Viewer zeigt jetzt wieder jede
+              einzelne Kopie.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry20">
+              <strong>24.09.2026 – Modell als STL-Block einbetten</strong>
+              Das aktuell sichtbare Modell lässt sich jetzt direkt als neuer STL-Block ins Projekt
+              einbetten – ganz ohne Umweg über Herunterladen und erneutes Importieren einer Datei.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry21">
+              <strong>27.09.2026 – Taschenlampe im Viewer</strong>
+              Ein neuer Umschalter lässt ein Licht dem Mauszeiger über dem Modell folgen –
+              praktisch, um schlecht ausgeleuchtete Ecken und Winkel kurz gezielt aufzuhellen.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry22">
+              <strong>28.09.2026 – Neue 2D-Formen-Kategorie</strong>
+              Kreis, Quadrat, Extrudieren, Rotations-Extrudieren und Verjüngen (taper) stehen jetzt
+              als eigene Blöcke zur Verfügung – praktisch für eigene 2D-Konstruktionen und als
+              Grundlage für den Import älterer BlockSCAD-Projekte. Reine 2D-Flächen werden im
+              Viewer automatisch hauchdünn dargestellt, ohne dass sich am erzeugten Code etwas
+              ändert.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry23">
+              <strong>28.09.2026 – BlockSCAD-Import deutlich erweitert</strong>
+              Kugel, Spiegeln, RGB-Farbe sowie die neuen 2D-Formen (Kreis, Quadrat, Extrudieren,
+              Verjüngen) werden beim Import aus BlockSCAD jetzt korrekt übernommen statt
+              übersprungen zu werden.
+            </div>
+
+            <div class="update-entry"><br /><br /><br /><br /><br /><br /><br /></div>
+          </div>
+        </div>
+        <p class="update-hint" data-i18n="update.hint">Zum Weiterlesen klicken</p>
+      </div>
+    </section>
+
+    <!-- FUNKTIONEN -->
+    <section id="funktionen">
+      <div class="container">
+        <p class="section-label" data-i18n="funktionen.label">Was CAD N'Done kann</p>
+        <h2 class="section-title" data-i18n="funktionen.title">
+          Vom ersten Block bis zum fertigen Modell
+        </h2>
+        <p class="section-desc" data-i18n="funktionen.desc">
+          Ein vollständiger Editor für parametrisches 3D-Design – von der Blockly-Werkstatt bis zum
+          exportfertigen Modell.
+        </p>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🧱</div>
+            <h3 data-i18n="funktionen.card1.title">Visueller Block-Editor</h3>
+            <ul class="feature-list">
+              <li data-i18n="funktionen.card1.li1">
+                Alle wichtigen OpenSCAD-Befehle als steckbare Blöcke
+              </li>
+              <li data-i18n="funktionen.card1.li2">
+                Live generierter, jederzeit einsehbarer OpenSCAD-Code
+              </li>
+              <li data-i18n="funktionen.card1.li3">
+                Undo/Redo, Aufräumen-Funktion für die Blockanordnung
+              </li>
+              <li data-i18n="funktionen.card1.li4">
+                Import von SVG, STL, Fotos (Trace) und bestehenden BlockSCAD-Projekten
+              </li>
+            </ul>
+          </div>
+          <div class="feature-card accent-primary">
+            <div class="feature-icon">🖥️</div>
+            <h3 data-i18n="funktionen.card2.title">3D-Vorschau in Echtzeit</h3>
+            <ul class="feature-list">
+              <li data-i18n="funktionen.card2.li1">
+                Rendering per openscad-wasm in einem Web Worker – blockiert die Oberfläche nicht
+              </li>
+              <li data-i18n="funktionen.card2.li2">
+                Automatisches oder manuelles Rendern nach Wahl
+              </li>
+              <li data-i18n="funktionen.card2.li3">
+                Eigenes Vorschau-Fenster auslagerbar (Popout)
+              </li>
+              <li data-i18n="funktionen.card2.li4">
+                Export als PNG, STL oder GLB, inkl. Aufnahme von Turntable-Videos
+              </li>
+            </ul>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎚️</div>
+            <h3 data-i18n="funktionen.card3.title">Customizer für parametrische Modelle</h3>
+            <ul class="feature-list">
+              <li data-i18n="funktionen.card3.li1">
+                Regler und Eingabefelder für alle Modul-Parameter
+              </li>
+              <li data-i18n="funktionen.card3.li2">
+                Änderungen sofort in der 3D-Vorschau sichtbar
+              </li>
+              <li data-i18n="funktionen.card3.li3">
+                Ideal zum Feintunen fertiger Designs ohne Block-Suche
+              </li>
+            </ul>
+          </div>
+          <div class="feature-card accent-primary">
+            <div class="feature-icon">🤖</div>
+            <h3 data-i18n="funktionen.card4.title">KI-Assistent inklusive</h3>
+            <ul class="feature-list">
+              <li data-i18n="funktionen.card4.li1">
+                Modelle per Beschreibung bauen oder anpassen lassen
+              </li>
+              <li data-i18n="funktionen.card4.li2">
+                Arbeitet direkt auf denselben Blöcken – nichts verschwindet in einer Blackbox
+              </li>
+              <li data-i18n="funktionen.card4.li3">
+                Ideal für den Einstieg oder um sich Zeit bei Fleißarbeit zu sparen
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WERKZEUGE -->
+    <section id="werkzeuge">
+      <div class="container">
+        <p class="section-label" data-i18n="werkzeuge.label">Werkzeuge im Editor</p>
+        <h2 class="section-title" data-i18n="werkzeuge.title">
+          Alles, was ein 3D-Editor können muss.
+        </h2>
+        <p class="section-desc" data-i18n="werkzeuge.desc">
+          Direkt im Viewer verfügbar, ohne zusätzliche Software – ein Klick genügt.
+        </p>
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">📐</span>
+              <h3 data-i18n="werkzeuge.card1.title">Ausrichten-Werkzeug</h3>
+            </div>
+            <p data-i18n="werkzeuge.card1.desc">
+              Objekte per Klick aneinander ausrichten (Anfang/Mitte/Ende je Achse) – ohne bestehende
+              Werte zu überschreiben.
+            </p>
+          </div>
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">✂️</span>
+              <h3 data-i18n="werkzeuge.card2.title">Schnittebene</h3>
+            </div>
+            <p data-i18n="werkzeuge.card2.desc">
+              Modelle entlang X/Y/Z aufschneiden, um das Innenleben zu prüfen – Position und
+              Richtung frei wählbar.
+            </p>
+          </div>
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">💥</span>
+              <h3 data-i18n="werkzeuge.card3.title">Explosionsansicht</h3>
+            </div>
+            <p data-i18n="werkzeuge.card3.desc">
+              Einzelteile eines Modells auseinanderziehen, um Zusammenbau und Struktur zu verstehen.
+            </p>
+          </div>
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">📏</span>
+              <h3 data-i18n="werkzeuge.card4.title">Messwerkzeug</h3>
+            </div>
+            <p data-i18n="werkzeuge.card4.desc">
+              Abstände und Maße direkt im 3D-Modell abgreifen – ohne Umweg über externe Tools.
+            </p>
+          </div>
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">🚦</span>
+              <h3 data-i18n="werkzeuge.card5.title">Kollisionserkennung</h3>
+            </div>
+            <p data-i18n="werkzeuge.card5.desc">
+              Überlappende Bauteile werden automatisch erkannt und im Viewer hervorgehoben.
+            </p>
+          </div>
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">💡</span>
+              <h3 data-i18n="werkzeuge.card6.title">Licht &amp; Schatten</h3>
+            </div>
+            <p data-i18n="werkzeuge.card6.desc">
+              Lichtintensität, -winkel und Auto-Rotation frei einstellbar, inklusive Schattenwurf
+              für realistische Vorschauen.
+            </p>
+          </div>
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">🎥</span>
+              <h3 data-i18n="werkzeuge.card7.title">Aufnahme</h3>
+            </div>
+            <p data-i18n="werkzeuge.card7.desc">
+              Turntable-Videos direkt aus dem Viewer aufzeichnen – praktisch für Präsentationen und
+              Vorschauen.
+            </p>
+          </div>
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">📚</span>
+              <h3 data-i18n="werkzeuge.card8.title">Beispiel-Galerie</h3>
+            </div>
+            <p data-i18n="werkzeuge.card8.desc">
+              Fertige Beispielprojekte laden, verstehen und als Ausgangspunkt für eigene Designs
+              nutzen.
+            </p>
+          </div>
+          <div class="tool-card">
+            <div class="tool-card-header">
+              <span class="tool-card-icon">🌗</span>
+              <h3 data-i18n="werkzeuge.card9.title">Mehrsprachig &amp; Dark Mode</h3>
+            </div>
+            <p data-i18n="werkzeuge.card9.desc">
+              Deutsch und Englisch, dazu Hell-, Dunkel- und Kontrastmodus für jede Lichtsituation.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VERGLEICH -->
+    <section id="vergleich">
+      <div class="container">
+        <p class="section-label" data-i18n="vergleich.label">Warum CAD N'Done?</p>
+        <h2 class="section-title" data-i18n="vergleich.title">
+          Was mich schon immer an BlocksCAD gestört hat – und was CAD N'Done anders macht
+        </h2>
+        <p class="section-desc" data-i18n="vergleich.desc">
+          Beim Arbeiten mit BlocksCAD sind mir immer wieder Dinge begegnet, die den Workflow unnötig
+          kompliziert gemacht haben. Genau diese Punkte habe ich bei CAD N'Done anders gelöst.
+        </p>
+        <div class="compare-carousel">
+          <button
+            type="button"
+            class="compare-nav compare-prev"
+            aria-label="Zurück"
+            data-i18n-aria-label="vergleich.prev"
+          >
+            ‹
+          </button>
+          <div class="compare-scroll-viewport">
+            <div class="compare-scroll-content" id="compareScroll">
+              <div class="compare-card">
+                <span class="compare-card-icon">🔍</span>
+                <h3 data-i18n="vergleich.item1.title">Mehr Übersicht beim Arbeiten mit Blocks</h3>
+                <p class="compare-problem" data-i18n="vergleich.item1.problem">
+                  BlocksCAD: Wenn ich im Designbereich herauszoomen musste, um mehr vom Design zu
+                  sehen, wurden gleichzeitig die Blöcke in der Toolbox immer kleiner.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item1.solution">
+                  CAD N'Done: Designbereich und Toolbox sind unabhängig voneinander zoombar. Die
+                  Blöcke in der Toolbox bleiben immer gleich groß und damit gut lesbar.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">🗺️</span>
+                <h3 data-i18n="vergleich.item2.title">Endlich wiederfinden, was man gebaut hat</h3>
+                <p class="compare-problem" data-i18n="vergleich.item2.problem">
+                  BlocksCAD: Bei größeren Projekten wurde es schnell schwierig, den Überblick zu
+                  behalten. Wo war noch einmal der Block, den ich bearbeiten wollte?
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item2.solution">
+                  CAD N'Done: Eine Minimap sorgt für den Überblick. Blöcke können übersichtlich
+                  angeordnet werden. Zusätzlich lassen sich Objekte direkt im Preview anklicken –
+                  CAD N'Done zeigt dann die dazugehörigen Blöcke im Design.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">📐</span>
+                <h3 data-i18n="vergleich.item3.title">Winkel einfach als Zahlen eingeben</h3>
+                <p class="compare-problem" data-i18n="vergleich.item3.problem">
+                  BlocksCAD: Die Eingabe von Winkeln konnte schnell zum Chaos werden, weil sich der
+                  Winkel an der Position des Mauszeigers orientierte.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item3.solution">
+                  CAD N'Done: Winkel werden einfach als numerischer Gradwert eingegeben. 45° sind
+                  45° – unabhängig davon, wo sich die Maus befindet.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">🔢</span>
+                <h3 data-i18n="vergleich.item4.title">Dezimalzahlen ohne Überraschungen</h3>
+                <p class="compare-problem" data-i18n="vergleich.item4.problem">
+                  BlocksCAD: Eine falsche Schreibweise bei Dezimalzahlen konnte zu völlig falschen
+                  Ergebnissen führen. Aus 0,20 wurde unter Umständen 20.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item4.solution">
+                  CAD N'Done: Punkt oder Komma – beides funktioniert. Das Komma wird automatisch in
+                  einen Punkt umgewandelt. 0,20 = 0.20
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">💻</span>
+                <h3 data-i18n="vergleich.item5.title">OpenSCAD-Code direkt als Block verwenden</h3>
+                <p class="compare-problem" data-i18n="vergleich.item5.problem">
+                  BlocksCAD: OpenSCAD-Code musste umständlich in Blockstrukturen übersetzt werden.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item5.solution">
+                  CAD N'Done: Einfach den gewünschten OpenSCAD-Code als Block einfügen und direkt
+                  verwenden. Und das Beste: Die vorhandenen Blöcke können darauf angewendet werden.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">📏</span>
+                <h3 data-i18n="vergleich.item6.title">Resize statt mühsam herumskalieren</h3>
+                <p class="compare-problem" data-i18n="vergleich.item6.problem">
+                  BlocksCAD: Die Größe stimmt nicht? Dann musste man sich über Scale und einen
+                  Faktor langsam an die gewünschte Größe herantasten.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item6.solution">
+                  CAD N'Done: Einfach den aus OpenSCAD bekannten Befehl Resize verwenden. Gewünschte
+                  Größe für X, Y und Z angeben – fertig. Auf Wunsch natürlich auch proportional.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">✏️</span>
+                <h3 data-i18n="vergleich.item7.title">2D-Formen direkt aus einem Bild erstellen</h3>
+                <p class="compare-problem" data-i18n="vergleich.item7.problem">
+                  BlocksCAD: Viele 2D-Formen belasten die Toolbox, obwohl man sie nur selten oder
+                  gar nicht benötigt.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item7.solution">
+                  CAD N'Done: Mit dem integrierten Image-to-3D-Workflow wird aus einer Vorlage eine
+                  3D-Form: Bild einfügen, Kontur nachzeichnen, extrudieren – fertig.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">👁️</span>
+                <h3 data-i18n="vergleich.item8.title">Einfach ins Innere des Designs schauen</h3>
+                <p class="compare-problem" data-i18n="vergleich.item8.problem">
+                  BlocksCAD: Um in ein Objekt hineinzusehen, musste man zusätzliche
+                  Difference-Blöcke oder andere Funktionen einbauen und anschließend wieder
+                  entfernen.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item8.solution">
+                  CAD N'Done: Einfach eine Schnittebene einstellen, ins Innere schauen und danach
+                  direkt weiterarbeiten. Kein zusätzlicher Code, kein Aufräumen.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">⚠️</span>
+                <h3 data-i18n="vergleich.item9.title">Kollisionen sofort erkennen</h3>
+                <p class="compare-problem" data-i18n="vergleich.item9.problem">
+                  BlocksCAD: Berühren sich die Objekte wirklich? Oder überschneiden sie sich? Oft
+                  hieß es: Include einfügen, rendern, prüfen – und wieder von vorne.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item9.solution">
+                  CAD N'Done: Kollisionsprüfung einschalten und sofort sehen, wo Objekte miteinander
+                  kollidieren – ohne den eigentlichen Code verändern zu müssen.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">📏</span>
+                <h3 data-i18n="vergleich.item10.title">Vor dem Drucken messen</h3>
+                <p class="compare-problem" data-i18n="vergleich.item10.problem">
+                  BlocksCAD: Habe ich wirklich den richtigen Durchmesser? Ist die Länge korrekt?
+                  Erst nach dem Export oder Druck stellte sich manchmal heraus: falsch.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item10.solution">
+                  CAD N'Done: Mit den Messwerkzeugen lässt sich direkt im Design überprüfen, ob Maße
+                  und Winkel stimmen – noch bevor der Druck startet.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">🎥</span>
+                <h3 data-i18n="vergleich.item11.title">
+                  Nicht nur einen Screenshot – das ganze Design zeigen
+                </h3>
+                <p class="compare-problem" data-i18n="vergleich.item11.problem">
+                  BlocksCAD: Für eine Präsentation oder zur Dokumentation musste man Screenshots
+                  erstellen.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item11.solution">
+                  CAD N'Done: Einfach Aufnahme drücken, das Design drehen und zoomen und daraus
+                  einen Film erstellen. So lässt sich das Modell schon vor dem Druck anschaulich
+                  präsentieren.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">🖥️</span>
+                <h3 data-i18n="vergleich.item12.title">
+                  Preview auf den zweiten Monitor auslagern
+                </h3>
+                <p class="compare-problem" data-i18n="vergleich.item12.problem">
+                  BlocksCAD: Der Bildschirm wird schnell zu klein. Ständiges Vergrößern, Verkleinern
+                  oder Umschalten zwischen Arbeitsfläche und Preview war notwendig.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item12.solution">
+                  CAD N'Done: Das Preview kann auf einen zweiten Monitor ausgelagert werden. Auf dem
+                  Hauptbildschirm bleibt Platz für das eigentliche Design.
+                </p>
+              </div>
+
+              <div class="compare-card">
+                <span class="compare-card-icon">📋</span>
+                <h3 data-i18n="vergleich.item13.title">
+                  Kopieren und dort einfügen, wo es gebraucht wird
+                </h3>
+                <p class="compare-problem" data-i18n="vergleich.item13.problem">
+                  BlocksCAD: Beim Kopieren wurde die Kopie automatisch versetzt unter dem Original
+                  abgelegt. Wollte man sie an einer anderen Stelle haben, musste man sie
+                  anschließend erst verschieben.
+                </p>
+                <p class="compare-solution" data-i18n="vergleich.item13.solution">
+                  CAD N'Done: Einfach kopieren und dort einfügen, wo sich der Mauszeiger befindet.
+                  Genau dort landet die Kopie.
+                </p>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="compare-nav compare-next"
+            aria-label="Weiter"
+            data-i18n-aria-label="vergleich.next"
+          >
+            ›
+          </button>
+        </div>
+        <p class="compare-counter">
+          <span id="compareCounterCurrent">1</span> / <span id="compareCounterTotal">13</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- TECH -->
+    <section id="technologie">
+      <div class="container">
+        <p class="section-label" data-i18n="technologie.label">Technologie</p>
+        <h2 class="section-title" data-i18n="technologie.title">Modern. Schlank. Ohne Cloud.</h2>
+        <p class="section-desc" data-i18n="technologie.desc">
+          Aufgebaut auf bewährten Open-Source-Technologien – alles läuft lokal im Browser, nichts
+          wird an einen Server geschickt.
+        </p>
+        <div class="tech-grid">
+          <div class="tech-pill"><span>🧩</span> Blockly</div>
+          <div class="tech-pill"><span>📐</span> OpenSCAD</div>
+          <div class="tech-pill"><span>🖥️</span> Three.js</div>
+          <div class="tech-pill">
+            <span>🔒</span> <span data-i18n="technologie.pill3">100% lokal, keine Cloud</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section id="team">
+      <div class="container">
+        <p class="section-label" data-i18n="team.label">Das Team</p>
+        <h2 class="section-title" data-i18n="team.title">Menschen hinter CAD N'Done</h2>
+        <p class="section-desc" data-i18n="team.desc">
+          Entwickelt von einem kleinen, engagierten Team – mit Leidenschaft für gute Software.
+        </p>
+        <div class="team-layout">
+          <img
+            src="https://do-n-done.de/image1499-3.png"
+            alt="Do N'Done Entwicklerteam"
+            id="teamImage"
+            class="team-image"
+          />
+          <div class="dev-scroll-viewport">
+            <div class="dev-scroll-content" id="devScroll">
+              <div class="dev-entry">&nbsp;</div>
+              <div class="dev-entry" data-i18n="team.dev1">
+                <strong>Lena Meier</strong><br /><em>„Gestaltung beginnt mit Empathie."</em
+                ><br />Lead UX Designer · Frontend Engineer
+              </div>
+              <div class="dev-entry" data-i18n="team.dev2">
+                <strong>Jonas Krüger</strong><br /><em>„Stabil läuft, wenn man's richtig baut."</em
+                ><br />Senior Backend Developer · DevOps
+              </div>
+              <div class="dev-entry" data-i18n="team.dev3">
+                <strong>Nora Schmidt</strong><br /><em>„Was nicht getestet ist, zählt nicht."</em
+                ><br />QA Engineer · Testautomatisierung
+              </div>
+              <div class="dev-entry" data-i18n="team.dev4">
+                <strong>Clara Reuter</strong><br /><em>„Barrierefreiheit ist kein Extra."</em
+                ><br />Fullstack Developer · Accessibility Lead
+              </div>
+              <div class="dev-entry" data-i18n="team.dev5">
+                <strong>Tina Bauer</strong><br /><em>„Gutes UI fühlt sich auch gut an."</em
+                ><br />Interaction Designer · UI-Konzepte
+              </div>
+              <div class="dev-entry" data-i18n="team.dev6">
+                <strong>Max Fischer</strong><br /><em>„Technik dient dem Team, nicht dem Ego."</em
+                ><br />CTO · Lead Developer
+              </div>
+              <div class="dev-entry" data-i18n="team.dev7">
+                <strong>Sophia Jung</strong><br /><em>„Verstehen kommt vor Gestalten."</em
+                ><br />Product Owner · UX Research
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta">
+      <div class="container">
+        <p class="punchline">Click. Build. Print.</p>
+        <h2 class="section-title" data-i18n="cta.title">Bereit für dein erstes Modell?</h2>
+        <p class="section-desc" data-i18n="cta.desc">
+          Kein Download, kein Konto, keine Kosten. Der Editor öffnet sich direkt im Browser.
+        </p>
+        <img src="/images/cat.png" alt="" aria-hidden="true" class="cta-cat" />
+        <div class="hero-actions">
+          <a href="startcadndone.html" class="btn-primary"> 🐾 Let's CAD </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <p>
+        © 2026 <strong>CAD N'Done</strong> ·
+        <a href="mailto:michael@sendrowski.de">michael@sendrowski.de</a> ·
+        <a href="impressum.html">Impressum</a>
+      </p>
+    </footer>
+
+    <div id="small-screen-notice" role="dialog" aria-live="polite">
+      <div class="small-screen-notice-box">
+        <p data-i18n="smallScreen.message">
+          CAD N'Done ist für große Tablets und Bildschirme optimiert. Auf kleineren Bildschirmen
+          kann die Darstellung eingeschränkt sein.
+        </p>
+        <button
+          type="button"
+          id="small-screen-continue-btn"
+          class="btn-primary"
+          data-i18n="smallScreen.continue"
+        >
+          Weiter
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const I18N_STORAGE_KEY = 'blockscad-next:locale'
+
+      const I18N = {
+        de: {
+          'meta.description':
+            "CAD N'Done - der kostenlose Blockly-Editor für OpenSCAD. Parametrische 3D-Modelle per Drag & Drop bauen, live im Browser rendern - kein Server, kein Account, keine Installation.",
+          'meta.keywords':
+            "CAD N'Done, BlocksCAD, Blockly, OpenSCAD, 3D-Druck, 3D-Modellierung, 3D-Projekte, Blockly-Editor, visueller CAD-Editor, parametrisches Design, Schule, Unterricht, Ausbildung, MINT, Hobby, DIY, Do it yourself, 3D-Drucker, kostenloser CAD-Editor, CAD für Anfänger, 3D-Design im Browser",
+          'nav.why': 'Warum',
+          'nav.features': 'Funktionen',
+          'nav.tools': 'Werkzeuge',
+          'nav.comparison': 'Vergleich',
+          'nav.technology': 'Technologie',
+          'hero.sub':
+            'Parametrische 3D-Modelle per Klick zusammenstecken statt Code zu tippen – komplett im Browser gerendert. Kein Server, kein Account, keine Installation. Einfach loslegen.',
+          'hero.discover': 'Funktionen entdecken',
+          'warum.label': "Warum CAD N'Done?",
+          'warum.title': 'Bauen statt Tippen. Sofort. Kostenlos.',
+          'warum.desc':
+            "OpenSCAD ist mächtig, aber textbasiert – jede Klammer muss sitzen. CAD N'Done übersetzt dieselbe Sprache in steckbare Blöcke: keine Syntaxfehler, keine Installation, kein Account. Einfach Blöcke zusammenklicken und live in 3D sehen, was daraus wird.",
+          'warum.card1.title': 'Komplett kostenlos',
+          'warum.card1.desc':
+            'Keine Lizenzgebühren, keine Paywall, kein Konto nötig. Browser öffnen und loslegen.',
+          'warum.card2.title': 'Läuft nur im Browser',
+          'warum.card2.desc':
+            'OpenSCAD-Rendering per WebAssembly, 3D-Vorschau per Three.js – alles lokal, nichts wird hochgeladen.',
+          'warum.card3.title': 'Blöcke statt Syntax',
+          'warum.card3.desc':
+            'Jeder OpenSCAD-Befehl als steckbarer Block. Der Code entsteht automatisch und bleibt jederzeit einsehbar.',
+          'update.label': 'Neuigkeiten',
+          'update.desc':
+            "Aktuelle Meilensteine und Neuigkeiten aus der Entwicklung von CAD N'Done.",
+          'update.entry1':
+            '<strong>19.08.2026 – Ausrichten-Werkzeug für 3D-Objekte</strong>Objekte per Klick aneinander ausrichten (Anfang/Mitte/Ende je Achse) – bestehende Werte bleiben erhalten, ein passender Korrektur-Block wird automatisch eingefügt.',
+          'update.entry2':
+            '<strong>22.08.2026 – Schnittebene mit Achsen-Buttons</strong>Die Achsenauswahl der Schnittebene wurde vom Dropdown auf drei direkte X/Y/Z-Buttons umgestellt – ein Klick statt Auswahlmenü.',
+          'update.entry3':
+            '<strong>26.08.2026 – Customizer jetzt auch im ausgelagerten Vorschaufenster</strong>Regler-Änderungen lösen jetzt zuverlässig ein Rendering aus – auch wenn das Vorschaufenster als eigenes, maximiertes Fenster ausgelagert ist.',
+          'update.entry4':
+            '<strong>29.08.2026 – Explosionsansicht &amp; Messwerkzeug</strong>Einzelteile eines Modells auseinanderziehen und Maße direkt im 3D-Modell abgreifen – beides direkt im Viewer verfügbar.',
+          'update.entry5':
+            '<strong>02.09.2026 – KI-Assistent im Editor</strong>Ein integrierter Assistent hilft beim Bauen und Anpassen von Modellen – er arbeitet direkt auf denselben Blöcken, nichts verschwindet in einer Blackbox.',
+          'update.entry6':
+            '<strong>05.09.2026 – Import aus SVG, Fotos und STL</strong>Bestehende Zeichnungen, Fotos oder STL-Dateien lassen sich importieren und direkt als Ausgangspunkt für neue Modelle weiterverwenden.',
+          'update.entry7':
+            '<strong>09.09.2026 – Mehrsprachigkeit &amp; Kontrastmodus</strong>Deutsch/Englisch sowie ein eigener Kontrastmodus für bessere Zugänglichkeit sind vollständig integriert.',
+          'update.entry8':
+            '<strong>12.09.2026 – Block-Stil wählbar</strong>Im Menü lässt sich jetzt zwischen dem klassischen, runden Block-Look und einem flacheren, moderneren Stil wechseln – ganz nach Geschmack.',
+          'update.entry9':
+            '<strong>15.09.2026 – Neuer Block-Stil: Metallic</strong>Ein dritter, technischer Look ist da: eckige Ecken, echter Schlagschatten zwischen verschachtelten Blöcken und ein metallischer Verlauf – experimentell im Menü unter Block-Stil wählbar.',
+          'update.entry10':
+            '<strong>16.09.2026 – Neuer Block-Stil: Steampunk</strong>Ein vierter, experimenteller Look ergänzt Metallic: Messing-Patina und ein mechanischer Glanz-Verlauf – ebenfalls im Menü unter Block-Stil wählbar.',
+          'update.entry11':
+            '<strong>16.09.2026 – Verbindungsfehler bei Klammer-Blöcken behoben</strong>Ein Fehler aus dem zugrunde liegenden Blockly-Framework, durch den Blöcke nicht zuverlässig in C-förmige Klammer-Blöcke (z. B. Schleifen, Bedingungen) einrasteten, wurde behoben.',
+          'update.entry12':
+            '<strong>17.09.2026 – Speichern &amp; Export überarbeitet</strong>STL- und GLB-Dateien werden jetzt mit Projektname und Nummer benannt, ein neuer Speichern-Button sitzt direkt im Header neben dem Zähler.',
+          'update.entry13':
+            '<strong>17.09.2026 – Kollisionserkennung bleibt an</strong>Sie schaltet sich nicht mehr bei jeder Änderung ab, sondern prüft automatisch neu. Schnittebene und Explosionsansicht aktivieren sich jetzt direkt beim Bewegen des Reglers.',
+          'update.entry14':
+            '<strong>17.09.2026 – Farbige Notizen auf der Arbeitsfläche</strong>Kommentare lassen sich jetzt per Rechtsklick anlegen und in sieben Farben einfärben – praktisch, um große Designs optisch zu gliedern oder Teile zu beschriften.',
+          'update.entry15':
+            '<strong>17.09.2026 – Wandstärken-Heatmap im Viewer</strong>Färbt das Modell nach lokaler Wandstärke ein (rot = dünn, blau = dick) – praktisch, um vor dem Druck oder der Fertigung auf einen Blick zu sehen, wo Wände zu dünn geraten sind.',
+          'update.entry16':
+            '<strong>17.09.2026 – Deutlich schnelleres Rendering</strong>Ein Vergleichstest (hohle Kugel per difference(), $fn=200) brauchte in BlockSCAD 73 Sekunden und in OpenSCAD 89 Sekunden – in CAD N\'Done nur 3 Sekunden.',
+          'update.entry17':
+            '<strong>17.09.2026 – Überarbeitetes Koordinatenraster im Viewer</strong>Feines 1mm- und kräftiges 10mm-Raster mit Rand, dickere X/Y/Z-Achsen mit gestrichelten Verlängerungen ins Negative, sowie ein an Hell-/Dunkelmodus angepasster Hintergrund – zusammen eine deutlich klarere Orientierung in der 3D-Vorschau.',
+          'update.entry18':
+            '<strong>18.09.2026 – Transparenz für einzelne Teile</strong>Im Viewer lassen sich jetzt gezielt einzelne Objekte anklicken und stufenlos transparent schalten (10–80&nbsp;%) – praktisch, um innenliegende Teile eines Designs zu sehen, ohne sie auszublenden.',
+          'update.entry19':
+            '<strong>24.09.2026 – Bugfix: Schleifen in der 3D-Vorschau</strong>Eine Zählschleife mit fester Wiederholzahl zeigte in der 3D-Vorschau bisher nur ein einzelnes Objekt beim letzten Schleifenwert statt aller Kopien – der erzeugte OpenSCAD-Code selbst war davon nie betroffen. Der Viewer zeigt jetzt wieder jede einzelne Kopie.',
+          'update.entry20':
+            '<strong>24.09.2026 – Modell als STL-Block einbetten</strong>Das aktuell sichtbare Modell lässt sich jetzt direkt als neuer STL-Block ins Projekt einbetten – ganz ohne Umweg über Herunterladen und erneutes Importieren einer Datei.',
+          'update.entry21':
+            '<strong>27.09.2026 – Taschenlampe im Viewer</strong>Ein neuer Umschalter lässt ein Licht dem Mauszeiger über dem Modell folgen – praktisch, um schlecht ausgeleuchtete Ecken und Winkel kurz gezielt aufzuhellen.',
+          'update.entry22':
+            '<strong>28.09.2026 – Neue 2D-Formen-Kategorie</strong>Kreis, Quadrat, Extrudieren, Rotations-Extrudieren und Verjüngen (taper) stehen jetzt als eigene Blöcke zur Verfügung – praktisch für eigene 2D-Konstruktionen und als Grundlage für den Import älterer BlockSCAD-Projekte. Reine 2D-Flächen werden im Viewer automatisch hauchdünn dargestellt, ohne dass sich am erzeugten Code etwas ändert.',
+          'update.entry23':
+            '<strong>28.09.2026 – BlockSCAD-Import deutlich erweitert</strong>Kugel, Spiegeln, RGB-Farbe sowie die neuen 2D-Formen (Kreis, Quadrat, Extrudieren, Verjüngen) werden beim Import aus BlockSCAD jetzt korrekt übernommen statt übersprungen zu werden.',
+          'update.hint': 'Zum Weiterlesen klicken',
+          'funktionen.label': "Was CAD N'Done kann",
+          'funktionen.title': 'Vom ersten Block bis zum fertigen Modell',
+          'funktionen.desc':
+            'Ein vollständiger Editor für parametrisches 3D-Design – von der Blockly-Werkstatt bis zum exportfertigen Modell.',
+          'funktionen.card1.title': 'Visueller Block-Editor',
+          'funktionen.card1.li1': 'Alle wichtigen OpenSCAD-Befehle als steckbare Blöcke',
+          'funktionen.card1.li2': 'Live generierter, jederzeit einsehbarer OpenSCAD-Code',
+          'funktionen.card1.li3': 'Undo/Redo, Aufräumen-Funktion für die Blockanordnung',
+          'funktionen.card1.li4':
+            'Import von SVG, STL, Fotos (Trace) und bestehenden BlockSCAD-Projekten',
+          'funktionen.card2.title': '3D-Vorschau in Echtzeit',
+          'funktionen.card2.li1':
+            'Rendering per openscad-wasm in einem Web Worker – blockiert die Oberfläche nicht',
+          'funktionen.card2.li2': 'Automatisches oder manuelles Rendern nach Wahl',
+          'funktionen.card2.li3': 'Eigenes Vorschau-Fenster auslagerbar (Popout)',
+          'funktionen.card2.li4':
+            'Export als PNG, STL oder GLB, inkl. Aufnahme von Turntable-Videos',
+          'funktionen.card3.title': 'Customizer für parametrische Modelle',
+          'funktionen.card3.li1': 'Regler und Eingabefelder für alle Modul-Parameter',
+          'funktionen.card3.li2': 'Änderungen sofort in der 3D-Vorschau sichtbar',
+          'funktionen.card3.li3': 'Ideal zum Feintunen fertiger Designs ohne Block-Suche',
+          'funktionen.card4.title': 'KI-Assistent inklusive',
+          'funktionen.card4.li1': 'Modelle per Beschreibung bauen oder anpassen lassen',
+          'funktionen.card4.li2':
+            'Arbeitet direkt auf denselben Blöcken – nichts verschwindet in einer Blackbox',
+          'funktionen.card4.li3':
+            'Ideal für den Einstieg oder um sich Zeit bei Fleißarbeit zu sparen',
+          'werkzeuge.label': 'Werkzeuge im Editor',
+          'werkzeuge.title': 'Alles, was ein 3D-Editor können muss.',
+          'werkzeuge.desc':
+            'Direkt im Viewer verfügbar, ohne zusätzliche Software – ein Klick genügt.',
+          'werkzeuge.card1.title': 'Ausrichten-Werkzeug',
+          'werkzeuge.card1.desc':
+            'Objekte per Klick aneinander ausrichten (Anfang/Mitte/Ende je Achse) – ohne bestehende Werte zu überschreiben.',
+          'werkzeuge.card2.title': 'Schnittebene',
+          'werkzeuge.card2.desc':
+            'Modelle entlang X/Y/Z aufschneiden, um das Innenleben zu prüfen – Position und Richtung frei wählbar.',
+          'werkzeuge.card3.title': 'Explosionsansicht',
+          'werkzeuge.card3.desc':
+            'Einzelteile eines Modells auseinanderziehen, um Zusammenbau und Struktur zu verstehen.',
+          'werkzeuge.card4.title': 'Messwerkzeug',
+          'werkzeuge.card4.desc':
+            'Abstände und Maße direkt im 3D-Modell abgreifen – ohne Umweg über externe Tools.',
+          'werkzeuge.card5.title': 'Kollisionserkennung',
+          'werkzeuge.card5.desc':
+            'Überlappende Bauteile werden automatisch erkannt und im Viewer hervorgehoben.',
+          'werkzeuge.card6.title': 'Licht &amp; Schatten',
+          'werkzeuge.card6.desc':
+            'Lichtintensität, -winkel und Auto-Rotation frei einstellbar, inklusive Schattenwurf für realistische Vorschauen.',
+          'werkzeuge.card7.title': 'Aufnahme',
+          'werkzeuge.card7.desc':
+            'Turntable-Videos direkt aus dem Viewer aufzeichnen – praktisch für Präsentationen und Vorschauen.',
+          'werkzeuge.card8.title': 'Beispiel-Galerie',
+          'werkzeuge.card8.desc':
+            'Fertige Beispielprojekte laden, verstehen und als Ausgangspunkt für eigene Designs nutzen.',
+          'werkzeuge.card9.title': 'Mehrsprachig &amp; Dark Mode',
+          'werkzeuge.card9.desc':
+            'Deutsch und Englisch, dazu Hell-, Dunkel- und Kontrastmodus für jede Lichtsituation.',
+          'vergleich.label': "Warum CAD N'Done?",
+          'vergleich.title':
+            "Was mich schon immer an BlocksCAD gestört hat – und was CAD N'Done anders macht",
+          'vergleich.desc':
+            "Beim Arbeiten mit BlocksCAD sind mir immer wieder Dinge begegnet, die den Workflow unnötig kompliziert gemacht haben. Genau diese Punkte habe ich bei CAD N'Done anders gelöst.",
+          'vergleich.prev': 'Zurück',
+          'vergleich.next': 'Weiter',
+          'vergleich.item1.title': 'Mehr Übersicht beim Arbeiten mit Blocks',
+          'vergleich.item1.problem':
+            'BlocksCAD: Wenn ich im Designbereich herauszoomen musste, um mehr vom Design zu sehen, wurden gleichzeitig die Blöcke in der Toolbox immer kleiner.',
+          'vergleich.item1.solution':
+            "CAD N'Done: Designbereich und Toolbox sind unabhängig voneinander zoombar. Die Blöcke in der Toolbox bleiben immer gleich groß und damit gut lesbar.",
+          'vergleich.item2.title': 'Endlich wiederfinden, was man gebaut hat',
+          'vergleich.item2.problem':
+            'BlocksCAD: Bei größeren Projekten wurde es schnell schwierig, den Überblick zu behalten. Wo war noch einmal der Block, den ich bearbeiten wollte?',
+          'vergleich.item2.solution':
+            "CAD N'Done: Eine Minimap sorgt für den Überblick. Blöcke können übersichtlich angeordnet werden. Zusätzlich lassen sich Objekte direkt im Preview anklicken – CAD N'Done zeigt dann die dazugehörigen Blöcke im Design.",
+          'vergleich.item3.title': 'Winkel einfach als Zahlen eingeben',
+          'vergleich.item3.problem':
+            'BlocksCAD: Die Eingabe von Winkeln konnte schnell zum Chaos werden, weil sich der Winkel an der Position des Mauszeigers orientierte.',
+          'vergleich.item3.solution':
+            "CAD N'Done: Winkel werden einfach als numerischer Gradwert eingegeben. 45° sind 45° – unabhängig davon, wo sich die Maus befindet.",
+          'vergleich.item4.title': 'Dezimalzahlen ohne Überraschungen',
+          'vergleich.item4.problem':
+            'BlocksCAD: Eine falsche Schreibweise bei Dezimalzahlen konnte zu völlig falschen Ergebnissen führen. Aus 0,20 wurde unter Umständen 20.',
+          'vergleich.item4.solution':
+            "CAD N'Done: Punkt oder Komma – beides funktioniert. Das Komma wird automatisch in einen Punkt umgewandelt. 0,20 = 0.20",
+          'vergleich.item5.title': 'OpenSCAD-Code direkt als Block verwenden',
+          'vergleich.item5.problem':
+            'BlocksCAD: OpenSCAD-Code musste umständlich in Blockstrukturen übersetzt werden.',
+          'vergleich.item5.solution':
+            "CAD N'Done: Einfach den gewünschten OpenSCAD-Code als Block einfügen und direkt verwenden. Und das Beste: Die vorhandenen Blöcke können darauf angewendet werden.",
+          'vergleich.item6.title': 'Resize statt mühsam herumskalieren',
+          'vergleich.item6.problem':
+            'BlocksCAD: Die Größe stimmt nicht? Dann musste man sich über Scale und einen Faktor langsam an die gewünschte Größe herantasten.',
+          'vergleich.item6.solution':
+            "CAD N'Done: Einfach den aus OpenSCAD bekannten Befehl Resize verwenden. Gewünschte Größe für X, Y und Z angeben – fertig. Auf Wunsch natürlich auch proportional.",
+          'vergleich.item7.title': '2D-Formen direkt aus einem Bild erstellen',
+          'vergleich.item7.problem':
+            'BlocksCAD: Viele 2D-Formen belasten die Toolbox, obwohl man sie nur selten oder gar nicht benötigt.',
+          'vergleich.item7.solution':
+            "CAD N'Done: Mit dem integrierten Image-to-3D-Workflow wird aus einer Vorlage eine 3D-Form: Bild einfügen, Kontur nachzeichnen, extrudieren – fertig.",
+          'vergleich.item8.title': 'Einfach ins Innere des Designs schauen',
+          'vergleich.item8.problem':
+            'BlocksCAD: Um in ein Objekt hineinzusehen, musste man zusätzliche Difference-Blöcke oder andere Funktionen einbauen und anschließend wieder entfernen.',
+          'vergleich.item8.solution':
+            "CAD N'Done: Einfach eine Schnittebene einstellen, ins Innere schauen und danach direkt weiterarbeiten. Kein zusätzlicher Code, kein Aufräumen.",
+          'vergleich.item9.title': 'Kollisionen sofort erkennen',
+          'vergleich.item9.problem':
+            'BlocksCAD: Berühren sich die Objekte wirklich? Oder überschneiden sie sich? Oft hieß es: Include einfügen, rendern, prüfen – und wieder von vorne.',
+          'vergleich.item9.solution':
+            "CAD N'Done: Kollisionsprüfung einschalten und sofort sehen, wo Objekte miteinander kollidieren – ohne den eigentlichen Code verändern zu müssen.",
+          'vergleich.item10.title': 'Vor dem Drucken messen',
+          'vergleich.item10.problem':
+            'BlocksCAD: Habe ich wirklich den richtigen Durchmesser? Ist die Länge korrekt? Erst nach dem Export oder Druck stellte sich manchmal heraus: falsch.',
+          'vergleich.item10.solution':
+            "CAD N'Done: Mit den Messwerkzeugen lässt sich direkt im Design überprüfen, ob Maße und Winkel stimmen – noch bevor der Druck startet.",
+          'vergleich.item11.title': 'Nicht nur einen Screenshot – das ganze Design zeigen',
+          'vergleich.item11.problem':
+            'BlocksCAD: Für eine Präsentation oder zur Dokumentation musste man Screenshots erstellen.',
+          'vergleich.item11.solution':
+            "CAD N'Done: Einfach Aufnahme drücken, das Design drehen und zoomen und daraus einen Film erstellen. So lässt sich das Modell schon vor dem Druck anschaulich präsentieren.",
+          'vergleich.item12.title': 'Preview auf den zweiten Monitor auslagern',
+          'vergleich.item12.problem':
+            'BlocksCAD: Der Bildschirm wird schnell zu klein. Ständiges Vergrößern, Verkleinern oder Umschalten zwischen Arbeitsfläche und Preview war notwendig.',
+          'vergleich.item12.solution':
+            "CAD N'Done: Das Preview kann auf einen zweiten Monitor ausgelagert werden. Auf dem Hauptbildschirm bleibt Platz für das eigentliche Design.",
+          'vergleich.item13.title': 'Kopieren und dort einfügen, wo es gebraucht wird',
+          'vergleich.item13.problem':
+            'BlocksCAD: Beim Kopieren wurde die Kopie automatisch versetzt unter dem Original abgelegt. Wollte man sie an einer anderen Stelle haben, musste man sie anschließend erst verschieben.',
+          'vergleich.item13.solution':
+            "CAD N'Done: Einfach kopieren und dort einfügen, wo sich der Mauszeiger befindet. Genau dort landet die Kopie.",
+          'technologie.label': 'Technologie',
+          'technologie.title': 'Modern. Schlank. Ohne Cloud.',
+          'technologie.desc':
+            'Aufgebaut auf bewährten Open-Source-Technologien – alles läuft lokal im Browser, nichts wird an einen Server geschickt.',
+          'technologie.pill3': '100% lokal, keine Cloud',
+          'team.label': 'Das Team',
+          'team.title': "Menschen hinter CAD N'Done",
+          'team.desc':
+            'Entwickelt von einem kleinen, engagierten Team – mit Leidenschaft für gute Software.',
+          'team.dev1':
+            '<strong>Lena Meier</strong><br><em>„Gestaltung beginnt mit Empathie."</em><br>Lead UX Designer · Frontend Engineer',
+          'team.dev2':
+            '<strong>Jonas Krüger</strong><br><em>„Stabil läuft, wenn man\'s richtig baut."</em><br>Senior Backend Developer · DevOps',
+          'team.dev3':
+            '<strong>Nora Schmidt</strong><br><em>„Was nicht getestet ist, zählt nicht."</em><br>QA Engineer · Testautomatisierung',
+          'team.dev4':
+            '<strong>Clara Reuter</strong><br><em>„Barrierefreiheit ist kein Extra."</em><br>Fullstack Developer · Accessibility Lead',
+          'team.dev5':
+            '<strong>Tina Bauer</strong><br><em>„Gutes UI fühlt sich auch gut an."</em><br>Interaction Designer · UI-Konzepte',
+          'team.dev6':
+            '<strong>Max Fischer</strong><br><em>„Technik dient dem Team, nicht dem Ego."</em><br>CTO · Lead Developer',
+          'team.dev7':
+            '<strong>Sophia Jung</strong><br><em>„Verstehen kommt vor Gestalten."</em><br>Product Owner · UX Research',
+          'cta.title': 'Bereit für dein erstes Modell?',
+          'cta.desc':
+            'Kein Download, kein Konto, keine Kosten. Der Editor öffnet sich direkt im Browser.',
+          'smallScreen.message':
+            "CAD N'Done ist für große Tablets und Bildschirme optimiert. Auf kleineren Bildschirmen kann die Darstellung eingeschränkt sein.",
+          'smallScreen.continue': 'Weiter',
+        },
+        en: {
+          'meta.description':
+            "CAD N'Done - the free Blockly editor for OpenSCAD. Build parametric 3D models by drag & drop, rendered live in your browser - no server, no account, no installation.",
+          'meta.keywords':
+            "CAD N'Done, BlocksCAD, Blockly, OpenSCAD, 3D printing, 3D modeling, 3D projects, block-based CAD editor, visual CAD editor, parametric design, school, education, STEM, hobby, DIY, do it yourself, 3D printer, free CAD editor, CAD for beginners, browser-based 3D design",
+          'nav.why': 'Why',
+          'nav.features': 'Features',
+          'nav.tools': 'Tools',
+          'nav.comparison': 'Comparison',
+          'nav.technology': 'Technology',
+          'hero.sub':
+            'Snap parametric 3D models together with clicks instead of typing code – rendered entirely in your browser. No server, no account, no installation. Just get started.',
+          'hero.discover': 'Discover features',
+          'warum.label': "Why CAD N'Done?",
+          'warum.title': 'Build instead of type. Instantly. Free.',
+          'warum.desc':
+            "OpenSCAD is powerful but text-based – every bracket has to be just right. CAD N'Done translates the same language into snap-together blocks: no syntax errors, no installation, no account. Just click blocks together and watch it take shape in 3D live.",
+          'warum.card1.title': 'Completely free',
+          'warum.card1.desc':
+            'No license fees, no paywall, no account needed. Open your browser and go.',
+          'warum.card2.title': 'Runs entirely in the browser',
+          'warum.card2.desc':
+            'OpenSCAD rendering via WebAssembly, 3D preview via Three.js – all local, nothing gets uploaded.',
+          'warum.card3.title': 'Blocks instead of syntax',
+          'warum.card3.desc':
+            'Every OpenSCAD command as a snap-together block. The code is generated automatically and stays visible at all times.',
+          'update.label': 'News',
+          'update.desc': "Recent milestones and news from CAD N'Done's development.",
+          'update.entry1':
+            '<strong>2026-08-19 – Align tool for 3D objects</strong>Align objects to each other with a click (start/middle/end per axis) – existing values stay untouched, a matching correction block is inserted automatically.',
+          'update.entry2':
+            "<strong>2026-08-22 – Clipping plane with axis buttons</strong>The clipping plane's axis selector switched from a dropdown to three direct X/Y/Z buttons – one click instead of a selection menu.",
+          'update.entry3':
+            '<strong>2026-08-26 – Customizer now works in the popped-out preview window too</strong>Slider changes now reliably trigger a render – even when the preview window is popped out as its own maximized window.',
+          'update.entry4':
+            "<strong>2026-08-29 – Exploded view &amp; measuring tool</strong>Pull a model's parts apart and take measurements directly on the 3D model – both available right in the viewer.",
+          'update.entry5':
+            '<strong>2026-09-02 – AI assistant in the editor</strong>A built-in assistant helps build and adjust models – it works directly on the same blocks, nothing disappears into a black box.',
+          'update.entry6':
+            '<strong>2026-09-05 – Import from SVG, photos and STL</strong>Existing drawings, photos or STL files can be imported and used directly as a starting point for new models.',
+          'update.entry7':
+            '<strong>2026-09-09 – Multilingual support &amp; contrast mode</strong>German/English along with a dedicated contrast mode for better accessibility are fully built in.',
+          'update.entry8':
+            '<strong>2026-09-12 – Selectable block style</strong>The menu now lets you switch between the classic, rounded block look and a flatter, more modern style – whichever you prefer.',
+          'update.entry9':
+            '<strong>2026-09-15 – New block style: Metallic</strong>A third, more technical look has arrived: sharp corners, real drop shadows between nested blocks, and a metallic gradient – available as an experimental option in the Block Style menu.',
+          'update.entry10':
+            '<strong>2026-09-16 – New block style: Steampunk</strong>A fourth, experimental look joins Metallic: a brass patina and a mechanical sheen gradient – also selectable from the Block Style menu.',
+          'update.entry11':
+            '<strong>2026-09-16 – Fixed a connection bug in bracket blocks</strong>A bug in the underlying Blockly framework that kept blocks from reliably snapping into C-shaped bracket blocks (loops, conditionals, etc.) has been fixed.',
+          'update.entry12':
+            '<strong>2026-09-17 – Save &amp; export overhauled</strong>STL and GLB files are now named after the project name and counter, and a new save button sits right in the header next to the counter.',
+          'update.entry13':
+            '<strong>2026-09-17 – Collision detection stays on</strong>It no longer turns off with every edit and now automatically re-checks instead. The clipping plane and exploded view now activate as soon as you move their slider.',
+          'update.entry14':
+            '<strong>2026-09-17 – Colored notes on the canvas</strong>Comments can now be added via right-click and tinted in one of seven colors – handy for visually organizing large designs or labeling parts.',
+          'update.entry15':
+            '<strong>2026-09-17 – Wall thickness heatmap in the viewer</strong>Colors the model by local wall thickness (red = thin, blue = thick) – handy for spotting spots that are too thin before printing or manufacturing, at a glance.',
+          'update.entry16':
+            "<strong>2026-09-17 – Significantly faster rendering</strong>A benchmark (hollow sphere via difference(), $fn=200) took 73 seconds in BlockSCAD and 89 seconds in OpenSCAD – just 3 seconds in CAD N'Done.",
+          'update.entry17':
+            '<strong>2026-09-17 – Reworked coordinate grid in the viewer</strong>Fine 1mm and bold 10mm grid lines with a border, thicker X/Y/Z axes with dashed negative extensions, and a background that adapts to light/dark mode – together a much clearer sense of orientation in the 3D preview.',
+          'update.entry18':
+            '<strong>2026-09-18 – Transparency for individual parts</strong>Click objects in the viewer to make them see-through, adjustable from 10–80% – handy for checking parts hidden inside a design without hiding them.',
+          'update.entry19':
+            "<strong>2026-09-24 – Bugfix: loops in the 3D preview</strong>A counting loop with a fixed number of repeats used to show only a single object at the loop's last value in the 3D preview instead of every copy – the generated OpenSCAD code itself was never affected. The viewer now shows every copy again.",
+          'update.entry20':
+            '<strong>2026-09-24 – Embed model as an STL block</strong>The currently visible model can now be embedded directly as a new STL block in the project – no detour through downloading and re-importing a file.',
+          'update.entry21':
+            '<strong>2026-09-27 – Flashlight in the viewer</strong>A new toggle makes a light follow the mouse cursor over the model – handy for briefly brightening poorly lit corners and angles.',
+          'update.entry22':
+            '<strong>2026-09-28 – New 2D shapes category</strong>Circle, square, extrude, rotate-extrude and taper are now available as their own blocks – handy for your own 2D designs and as the basis for importing older BlockSCAD projects. Pure 2D shapes are now shown paper-thin in the viewer automatically, without changing the generated code.',
+          'update.entry23':
+            '<strong>2026-09-28 – BlockSCAD import significantly expanded</strong>Sphere, mirror, RGB color, and the new 2D shapes (circle, square, extrude, taper) are now correctly picked up when importing from BlockSCAD instead of being skipped.',
+          'update.hint': 'Click to continue reading',
+          'funktionen.label': "What CAD N'Done can do",
+          'funktionen.title': 'From the first block to the finished model',
+          'funktionen.desc':
+            'A complete editor for parametric 3D design – from the Blockly workshop to an export-ready model.',
+          'funktionen.card1.title': 'Visual block editor',
+          'funktionen.card1.li1': 'All key OpenSCAD commands as snap-together blocks',
+          'funktionen.card1.li2': 'Live-generated OpenSCAD code, viewable at any time',
+          'funktionen.card1.li3': 'Undo/redo, a clean-up function for block layout',
+          'funktionen.card1.li4': 'Import SVG, STL, photos (trace) and existing BlockSCAD projects',
+          'funktionen.card2.title': 'Real-time 3D preview',
+          'funktionen.card2.li1':
+            'Rendering via openscad-wasm in a web worker – never blocks the interface',
+          'funktionen.card2.li2': 'Automatic or manual rendering, your choice',
+          'funktionen.card2.li3': 'Preview window can be popped out into its own window',
+          'funktionen.card2.li4': 'Export as PNG, STL or GLB, including turntable video recording',
+          'funktionen.card3.title': 'Customizer for parametric models',
+          'funktionen.card3.li1': 'Sliders and input fields for all module parameters',
+          'funktionen.card3.li2': 'Changes are visible in the 3D preview instantly',
+          'funktionen.card3.li3':
+            'Perfect for fine-tuning finished designs without hunting for blocks',
+          'funktionen.card4.title': 'AI assistant included',
+          'funktionen.card4.li1': 'Have models built or adjusted from a description',
+          'funktionen.card4.li2':
+            'Works directly on the same blocks – nothing disappears into a black box',
+          'funktionen.card4.li3': 'Great for getting started or saving time on repetitive work',
+          'werkzeuge.label': 'Tools in the editor',
+          'werkzeuge.title': 'Everything a 3D editor needs.',
+          'werkzeuge.desc':
+            'Available right in the viewer, no extra software – one click is all it takes.',
+          'werkzeuge.card1.title': 'Align tool',
+          'werkzeuge.card1.desc':
+            'Align objects to each other with a click (start/middle/end per axis) – without overwriting existing values.',
+          'werkzeuge.card2.title': 'Clipping plane',
+          'werkzeuge.card2.desc':
+            'Slice models along X/Y/Z to inspect the interior – position and direction freely adjustable.',
+          'werkzeuge.card3.title': 'Exploded view',
+          'werkzeuge.card3.desc':
+            "Pull a model's parts apart to understand its assembly and structure.",
+          'werkzeuge.card4.title': 'Measuring tool',
+          'werkzeuge.card4.desc':
+            'Take distances and measurements directly on the 3D model – no need for external tools.',
+          'werkzeuge.card5.title': 'Collision detection',
+          'werkzeuge.card5.desc':
+            'Overlapping parts are automatically detected and highlighted in the viewer.',
+          'werkzeuge.card6.title': 'Light &amp; shadow',
+          'werkzeuge.card6.desc':
+            'Light intensity, angle and auto-rotation freely adjustable, including cast shadows for realistic previews.',
+          'werkzeuge.card7.title': 'Recording',
+          'werkzeuge.card7.desc':
+            'Record turntable videos directly from the viewer – handy for presentations and previews.',
+          'werkzeuge.card8.title': 'Sample gallery',
+          'werkzeuge.card8.desc':
+            'Load ready-made sample projects, learn from them, and use them as a starting point for your own designs.',
+          'werkzeuge.card9.title': 'Multilingual &amp; dark mode',
+          'werkzeuge.card9.desc':
+            'German and English, plus light, dark and contrast modes for any lighting situation.',
+          'vergleich.label': "Why CAD N'Done?",
+          'vergleich.title':
+            "What always bothered me about BlocksCAD – and what CAD N'Done does differently",
+          'vergleich.desc':
+            "Working with BlocksCAD, I kept running into things that made the workflow needlessly complicated. Those are exactly the points I solved differently in CAD N'Done.",
+          'vergleich.prev': 'Previous',
+          'vergleich.next': 'Next',
+          'vergleich.item1.title': 'More overview while working with blocks',
+          'vergleich.item1.problem':
+            'BlocksCAD: Zooming out in the design area to see more of the design also shrank the blocks in the toolbox at the same time.',
+          'vergleich.item1.solution':
+            "CAD N'Done: The design area and toolbox zoom independently of each other. Blocks in the toolbox always stay the same size and remain easy to read.",
+          'vergleich.item2.title': 'Finally find what you built again',
+          'vergleich.item2.problem':
+            'BlocksCAD: On larger projects it quickly got hard to keep track. Where was that block I wanted to edit again?',
+          'vergleich.item2.solution':
+            "CAD N'Done: A minimap keeps you oriented. Blocks can be neatly arranged. You can also click objects directly in the preview – CAD N'Done then jumps to the matching blocks in the design.",
+          'vergleich.item3.title': 'Enter angles simply as numbers',
+          'vergleich.item3.problem':
+            "BlocksCAD: Entering angles could quickly turn into chaos, because the angle depended on the mouse cursor's position.",
+          'vergleich.item3.solution':
+            "CAD N'Done: Angles are simply entered as a numeric degree value. 45° is 45° – no matter where the mouse is.",
+          'vergleich.item4.title': 'Decimal numbers without surprises',
+          'vergleich.item4.problem':
+            'BlocksCAD: A wrong decimal notation could lead to completely wrong results. 0.20 could turn into 20 without warning.',
+          'vergleich.item4.solution':
+            "CAD N'Done: Period or comma – both work. A comma is automatically converted into a period. 0,20 = 0.20",
+          'vergleich.item5.title': 'Use OpenSCAD code directly as a block',
+          'vergleich.item5.problem':
+            'BlocksCAD: OpenSCAD code had to be laboriously translated into block structures.',
+          'vergleich.item5.solution':
+            "CAD N'Done: Simply paste the OpenSCAD code you want as a block and use it right away. Best part: existing blocks can be applied to it.",
+          'vergleich.item6.title': 'Resize instead of tedious scaling',
+          'vergleich.item6.problem':
+            'BlocksCAD: Size not quite right? Then you had to slowly feel your way to the right size via Scale and a factor.',
+          'vergleich.item6.solution':
+            "CAD N'Done: Just use the Resize command known from OpenSCAD. Enter the desired size for X, Y and Z – done. Proportional scaling is available too, of course.",
+          'vergleich.item7.title': 'Create 2D shapes directly from an image',
+          'vergleich.item7.problem':
+            'BlocksCAD: Lots of 2D shapes clutter the toolbox, even though you rarely or never need most of them.',
+          'vergleich.item7.solution':
+            "CAD N'Done: With the built-in image-to-3D workflow, a template becomes a 3D shape: insert an image, trace the outline, extrude – done.",
+          'vergleich.item8.title': 'Simply look inside your design',
+          'vergleich.item8.problem':
+            'BlocksCAD: To see inside an object, you had to add extra difference blocks or other workarounds and then remove them again afterwards.',
+          'vergleich.item8.solution':
+            "CAD N'Done: Just set a clipping plane, look inside, and keep working right afterwards. No extra code, no cleanup.",
+          'vergleich.item9.title': 'Spot collisions instantly',
+          'vergleich.item9.problem':
+            'BlocksCAD: Are the objects really touching? Or overlapping? It often meant: add an include, render, check – and start over.',
+          'vergleich.item9.solution':
+            "CAD N'Done: Turn on collision detection and instantly see where objects collide – without having to change the actual code.",
+          'vergleich.item10.title': 'Measure before you print',
+          'vergleich.item10.problem':
+            'BlocksCAD: Do I really have the right diameter? Is the length correct? Sometimes you only found out it was wrong after exporting or printing.',
+          'vergleich.item10.solution':
+            "CAD N'Done: The measuring tools let you check dimensions and angles right in the design – before the print even starts.",
+          'vergleich.item11.title': 'Show the whole design, not just a screenshot',
+          'vergleich.item11.problem':
+            'BlocksCAD: For a presentation or documentation, you had to take screenshots.',
+          'vergleich.item11.solution':
+            "CAD N'Done: Just hit record, rotate and zoom the design, and turn it into a video. That way the model can be presented vividly even before it's printed.",
+          'vergleich.item12.title': 'Move the preview to a second monitor',
+          'vergleich.item12.problem':
+            'BlocksCAD: The screen fills up fast. You constantly had to zoom in, zoom out, or switch between the workspace and the preview.',
+          'vergleich.item12.solution':
+            "CAD N'Done: The preview can be popped out onto a second monitor. That leaves room on the main screen for the actual design.",
+          'vergleich.item13.title': 'Copy and paste exactly where you need it',
+          'vergleich.item13.problem':
+            'BlocksCAD: When copying, the copy was automatically placed offset below the original. If you wanted it somewhere else, you had to move it afterwards.',
+          'vergleich.item13.solution':
+            "CAD N'Done: Just copy and paste wherever your mouse cursor is. The copy lands exactly there.",
+          'technologie.label': 'Technology',
+          'technologie.title': 'Modern. Lean. No cloud.',
+          'technologie.desc':
+            'Built on proven open-source technology – everything runs locally in the browser, nothing is sent to a server.',
+          'technologie.pill3': '100% local, no cloud',
+          'team.label': 'The Team',
+          'team.title': "The people behind CAD N'Done",
+          'team.desc': 'Built by a small, dedicated team – with a passion for good software.',
+          'team.dev1':
+            '<strong>Lena Meier</strong><br><em>“Design begins with empathy.”</em><br>Lead UX Designer · Frontend Engineer',
+          'team.dev2':
+            '<strong>Jonas Krüger</strong><br><em>“It runs stable when you build it right.”</em><br>Senior Backend Developer · DevOps',
+          'team.dev3':
+            "<strong>Nora Schmidt</strong><br><em>“What isn't tested doesn't count.”</em><br>QA Engineer · Test Automation",
+          'team.dev4':
+            "<strong>Clara Reuter</strong><br><em>“Accessibility isn't an extra.”</em><br>Fullstack Developer · Accessibility Lead",
+          'team.dev5':
+            '<strong>Tina Bauer</strong><br><em>“Good UI feels good too.”</em><br>Interaction Designer · UI Concepts',
+          'team.dev6':
+            '<strong>Max Fischer</strong><br><em>“Technology serves the team, not the ego.”</em><br>CTO · Lead Developer',
+          'team.dev7':
+            '<strong>Sophia Jung</strong><br><em>“Understanding comes before designing.”</em><br>Product Owner · UX Research',
+          'cta.title': 'Ready for your first model?',
+          'cta.desc': 'No download, no account, no cost. The editor opens right in your browser.',
+          'smallScreen.message':
+            "CAD N'Done is optimized for large tablets and screens. On smaller screens, the layout may be limited.",
+          'smallScreen.continue': 'Continue',
+        },
+      }
+
+      function detectInitialLocale() {
+        const stored = localStorage.getItem(I18N_STORAGE_KEY)
+        if (stored === 'de' || stored === 'en') return stored
+        const browserLang = navigator.language.slice(0, 2)
+        return browserLang === 'en' ? 'en' : 'de'
+      }
+
+      function applyLocale(locale) {
+        document.documentElement.lang = locale
+        document
+          .querySelector('meta[name="description"]')
+          .setAttribute('content', I18N[locale]['meta.description'])
+        document
+          .querySelector('meta[name="keywords"]')
+          .setAttribute('content', I18N[locale]['meta.keywords'])
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const key = el.getAttribute('data-i18n')
+          const value = I18N[locale][key]
+          if (value !== undefined) el.innerHTML = value
+        })
+        document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+          const key = el.getAttribute('data-i18n-aria-label')
+          const value = I18N[locale][key]
+          if (value !== undefined) el.setAttribute('aria-label', value)
+        })
+        document.querySelectorAll('.lang-switch button').forEach((btn) => {
+          btn.setAttribute('aria-pressed', String(btn.dataset.lang === locale))
+        })
+      }
+
+      let currentLocale = detectInitialLocale()
+      applyLocale(currentLocale)
+
+      document.querySelectorAll('.lang-switch button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const locale = btn.dataset.lang
+          if (locale === currentLocale) return
+          currentLocale = locale
+          localStorage.setItem(I18N_STORAGE_KEY, locale)
+          applyLocale(locale)
+        })
+      })
+
+      document.addEventListener('DOMContentLoaded', () => {
+        function initAutoScroller({
+          contentEl,
+          viewportEl,
+          pauseDuration = 5000,
+          speed = 1.5,
+          axis = 'y',
+          markerSelector = 'strong',
+          reverseOrder = false,
+          clickToSkip = false,
+        }) {
+          if (!contentEl || !viewportEl) return
+          // Neue Eintraege kommen im Quelltext immer ans Ende (einfach
+          // anzuhaengen, statt bestehende Reihenfolge umzusortieren) - die
+          // ANZEIGE soll aber mit dem neuesten (also zuletzt im Quelltext
+          // stehenden) Eintrag beginnen. appendChild auf ein bereits
+          // vorhandenes Kind verschiebt es (verschiebt, dupliziert nicht) -
+          // in umgekehrter Quellreihenfolge angehaengt ergibt das genau die
+          // gewuenschte Anzeigereihenfolge.
+          if (reverseOrder) {
+            Array.from(contentEl.children)
+              .reverse()
+              .forEach((child) => contentEl.appendChild(child))
+          }
+
+          let offset = 0
+          let isPaused = false
+          let isVisible = false
+          let resumeTimeoutId = null
+
+          function resumeNow() {
+            if (resumeTimeoutId !== null) {
+              clearTimeout(resumeTimeoutId)
+              resumeTimeoutId = null
+            }
+            offset -= 1
+            isPaused = false
+          }
+
+          function step() {
+            if (isVisible && !isPaused) {
+              offset -= speed
+              contentEl.style.transform =
+                axis === 'x' ? `translateX(${offset}px)` : `translateY(${offset}px)`
+              checkPause()
+            }
+            requestAnimationFrame(step)
+          }
+
+          function checkPause() {
+            const markers = contentEl.querySelectorAll(markerSelector)
+            const vRect = viewportEl.getBoundingClientRect()
+            const vStyle = getComputedStyle(viewportEl)
+            // vRect ist die AEUSSERE Kante der Viewport-Box (Border-Box),
+            // der Inhalt liegt aber wegen dessen Padding (siehe
+            // .update-scroll-viewport / .dev-scroll-viewport) weiter innen -
+            // ohne diesen Ausgleich haelt hier ein Eintrag zu frueh an, um
+            // genau das Padding zu frueh (der Text wirkt "zu hoch" gescrollt).
+            const vStart =
+              axis === 'x'
+                ? vRect.left + parseFloat(vStyle.paddingLeft)
+                : vRect.top + parseFloat(vStyle.paddingTop)
+            for (const marker of markers) {
+              const rect = marker.getBoundingClientRect()
+              const aligned = axis === 'x' ? Math.abs(rect.left - vStart) < 1 : Math.abs(rect.top - vStart) < 1
+              if (aligned) {
+                isPaused = true
+                resumeTimeoutId = setTimeout(resumeNow, pauseDuration)
+                break
+              }
+            }
+            // Bei axis:'x' gibt getBoundingClientRect() nur die Layout-Breite
+            // der Flex-Row zurueck (begrenzt auf den Container), NICHT die
+            // tatsaechliche, ueberlaufende Inhaltsbreite - deshalb hier
+            // scrollWidth statt rect.right (bei axis:'y' waechst die Hoehe
+            // eines Flex-Columns dagegen ganz normal mit dem Inhalt mit).
+            const contentEdge =
+              axis === 'x'
+                ? contentEl.getBoundingClientRect().left + contentEl.scrollWidth
+                : contentEl.getBoundingClientRect().bottom
+            const viewportEdge =
+              axis === 'x'
+                ? viewportEl.getBoundingClientRect().right
+                : viewportEl.getBoundingClientRect().bottom
+            if (contentEdge < viewportEdge) {
+              offset = 0
+            }
+          }
+
+          new IntersectionObserver(
+            (entries) => {
+              isVisible = entries[0].isIntersecting
+            },
+            { threshold: 0.5 },
+          ).observe(viewportEl)
+
+          // Klick auf den gerade angezeigten (pausierten) Eintrag ueberspringt
+          // die restliche Wartezeit, statt die volle pauseDuration abzuwarten.
+          if (clickToSkip) {
+            viewportEl.style.cursor = 'pointer'
+            viewportEl.addEventListener('click', () => {
+              if (isPaused) resumeNow()
+            })
+          }
+
+          step()
+        }
+
+        initAutoScroller({
+          contentEl: document.querySelector('.dev-scroll-content'),
+          viewportEl: document.querySelector('.dev-scroll-viewport'),
+          pauseDuration: 5000,
+          speed: 1.5,
+        })
+
+        initAutoScroller({
+          contentEl: document.querySelector('.update-scroll-content'),
+          viewportEl: document.querySelector('.update-scroll-viewport'),
+          pauseDuration: 8000,
+          speed: 1.0,
+          reverseOrder: true,
+          clickToSkip: true,
+        })
+
+        // Vergleich-Karussell: kein Auto-Scroll, nur manuelle Pfeil-
+        // Navigation - jede Karte per translateX(-n*100%) auf einmal einen
+        // vollen Schritt weiter, mit leichtem Ueberschwingen (Bounce) durch
+        // die cubic-bezier-Transition in .compare-scroll-content (siehe CSS).
+        // Rundlauf: von der letzten Karte aus "Weiter" (und von der ersten
+        // aus "Zurueck") springt zur jeweils anderen Seite - dieser eine
+        // Sprung bewusst OHNE Animation (transition kurz deaktiviert), sonst
+        // wuerde die Transition sichtbar rueckwaerts durch alle Karten
+        // dazwischen laufen statt direkt zu wechseln.
+        ;(function initCompareCarousel() {
+          const content = document.querySelector('.compare-scroll-content')
+          const prevBtn = document.querySelector('.compare-prev')
+          const nextBtn = document.querySelector('.compare-next')
+          const counterCurrent = document.getElementById('compareCounterCurrent')
+          const counterTotal = document.getElementById('compareCounterTotal')
+          if (!content || !prevBtn || !nextBtn) return
+          const cards = Array.from(content.querySelectorAll('.compare-card'))
+          if (!cards.length) return
+          if (counterTotal) counterTotal.textContent = String(cards.length)
+          let index = 0
+
+          function goTo(newIndex, instant) {
+            index = newIndex
+            if (instant) {
+              content.style.transition = 'none'
+              content.style.transform = `translateX(-${index * 100}%)`
+              // Reflow erzwingen, damit der obige Sprung wirklich OHNE
+              // Transition gerendert wird, bevor diese wieder aktiviert wird.
+              void content.offsetWidth
+              content.style.transition = ''
+            } else {
+              content.style.transform = `translateX(-${index * 100}%)`
+            }
+            if (counterCurrent) counterCurrent.textContent = String(index + 1)
+          }
+
+          prevBtn.addEventListener('click', () => {
+            if (index === 0) {
+              goTo(cards.length - 1, true)
+            } else {
+              goTo(index - 1, false)
+            }
+          })
+          nextBtn.addEventListener('click', () => {
+            if (index === cards.length - 1) {
+              goTo(0, true)
+            } else {
+              goTo(index + 1, false)
+            }
+          })
+
+          goTo(0, true)
+        })()
+
+        const SMALL_SCREEN_BREAKPOINT = 900
+        const notice = document.getElementById('small-screen-notice')
+        const continueBtn = document.getElementById('small-screen-continue-btn')
+
+        document.querySelectorAll('a[href="startcadndone.html"]').forEach((link) => {
+          link.addEventListener('click', (event) => {
+            if (window.innerWidth >= SMALL_SCREEN_BREAKPOINT) return
+            event.preventDefault()
+            notice.classList.add('open')
+          })
+        })
+
+        continueBtn.addEventListener('click', () => {
+          window.location.href = 'startcadndone.html'
+        })
+      })
+    </script>
+  </body>
+</html>

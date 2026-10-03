@@ -1,0 +1,426 @@
+[
+    {
+        "id": "666f59e4397ce989",
+        "type": "template",
+        "z": "8a0281744c59eff4",
+        "name": "OpenAI API Key",
+        "field": "openai_api_key",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{{env.OPENAI_API_KEY}}",
+        "output": "str",
+        "x": 1360,
+        "y": 440,
+        "wires": [
+            [
+                "e840c2c34408c801"
+            ]
+        ]
+    },
+    {
+        "id": "e840c2c34408c801",
+        "type": "function",
+        "z": "8a0281744c59eff4",
+        "name": "Build OpenAI Payload",
+        "func": "// Das Frontend kennt nur EINE Nachrichten-/Werkzeugform (angelehnt an die\n// Anthropic Messages API - siehe src/types/agent.ts im Repo). Fuer ChatGPT\n// muss das hier ins Chat-Completions-Format von OpenAI uebersetzt werden,\n// damit agentClient.ts im Frontend nichts von den Unterschieden zwischen\n// den Anbietern wissen muss.\n\nfunction toOpenAiTools(tools) {\n  return (tools || []).map(function (t) {\n    return {\n      type: \"function\",\n      function: { name: t.name, description: t.description, parameters: t.input_schema }\n    };\n  });\n}\n\nfunction toOpenAiMessages(messages) {\n  const out = [];\n  for (const m of messages) {\n    if (typeof m.content === \"string\") {\n      out.push({ role: m.role, content: m.content });\n      continue;\n    }\n    if (m.role === \"assistant\") {\n      const textParts = m.content.filter(function (b) { return b.type === \"text\"; }).map(function (b) { return b.text; });\n      const toolCalls = m.content\n        .filter(function (b) { return b.type === \"tool_use\"; })\n        .map(function (b) {\n          return { id: b.id, type: \"function\", function: { name: b.name, arguments: JSON.stringify(b.input) } };\n        });\n      const assistantMsg = { role: \"assistant\", content: textParts.join(\"\\n\") || null };\n      if (toolCalls.length) assistantMsg.tool_calls = toolCalls;\n      out.push(assistantMsg);\n    } else {\n      // OpenAI verlangt PRO Tool-Ergebnis eine eigene \"tool\"-Nachricht,\n      // anders als Anthropic, das mehrere tool_result-Bloecke in EINER\n      // User-Nachricht buendelt.\n      const toolResults = m.content.filter(function (b) { return b.type === \"tool_result\"; });\n      if (toolResults.length) {\n        for (const tr of toolResults) {\n          out.push({ role: \"tool\", tool_call_id: tr.tool_use_id, content: tr.content });\n        }\n      } else {\n        const text = m.content.filter(function (b) { return b.type === \"text\"; }).map(function (b) { return b.text; }).join(\"\\n\");\n        out.push({ role: \"user\", content: text });\n      }\n    }\n  }\n  return out;\n}\n\nconst messages = msg.clientMessages ?? [{ role: \"user\", content: msg.user_prompt }];\nconst systemText = \"Antwortsprache: \" + msg.locale + \". Antworte ausschließlich in dieser Sprache.\" + msg.system_prompt;\n\nmsg.headers = {\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer \" + msg.openai_api_key\n};\n\nmsg.payload = {\n  model: env.get(\"OPENAI_MODEL\") || \"gpt-4o\",\n  messages: [{ role: \"system\", content: systemText }].concat(toOpenAiMessages(messages))\n};\n\nconst openaiTools = toOpenAiTools(msg.tools);\nif (openaiTools.length) {\n  msg.payload.tools = openaiTools;\n  // Ohne tool_choice faellt ChatGPT auf \"auto\" zurueck und erzaehlt den\n  // Bauplan gerne einfach als Freitext mit eingebettetem JSON-Codeblock,\n  // statt ihn ueber einen echten Funktionsaufruf zurueckzugeben - das\n  // Frontend (agentClient.ts) sucht aber gezielt nach einem tool_use-Block\n  // und baut sonst gar nichts. \"required\" zwingt zu einem echten Aufruf\n  // eines der uebergebenen Tools (hier: build_plan).\n  msg.payload.tool_choice = \"required\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1590,
+        "y": 440,
+        "wires": [
+            [
+                "c89acc461ada80f7"
+            ]
+        ]
+    },
+    {
+        "id": "c89acc461ada80f7",
+        "type": "http request",
+        "z": "8a0281744c59eff4",
+        "name": "Call OpenAI API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1830,
+        "y": 440,
+        "wires": [
+            [
+                "98bf5011817a1442",
+                "1b2d62edc68b94ea"
+            ]
+        ]
+    },
+    {
+        "id": "1b2d62edc68b94ea",
+        "type": "debug",
+        "z": "8a0281744c59eff4",
+        "name": "debug OpenAI raw",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1850,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "98bf5011817a1442",
+        "type": "function",
+        "z": "8a0281744c59eff4",
+        "name": "Konvertiere OpenAI Antwort",
+        "func": "// Wandelt die OpenAI-Chat-Completions-Antwort in dieselbe Form um, die der\n// Claude-Pfad liefert ({content: [...], stop_reason, usage}) - das\n// Frontend (agentClient.ts) braucht dadurch nie zu wissen, welcher Anbieter\n// tatsaechlich geantwortet hat.\nlet res = msg.payload;\n\nif (res && res.error) {\n  msg.statusCode = 502;\n  msg.payload = { error: res.error.message || \"Unbekannter Fehler von ChatGPT\" };\n  msg.raw = msg.payload.error;\n  return msg;\n}\n\nconst choice = res && res.choices && res.choices[0];\nif (!choice) {\n  msg.statusCode = 502;\n  msg.payload = { error: \"Unerwartete Antwortform von ChatGPT\" };\n  msg.raw = msg.payload.error;\n  return msg;\n}\n\nconst openaiMsg = choice.message || {};\nconst content = [];\nif (openaiMsg.content) content.push({ type: \"text\", text: openaiMsg.content });\nfor (const tc of (openaiMsg.tool_calls || [])) {\n  let input = {};\n  try { input = JSON.parse(tc.function.arguments); } catch (e) {}\n  content.push({ type: \"tool_use\", id: tc.id, name: tc.function.name, input: input });\n}\n\nconst stopReasonMap = { stop: \"end_turn\", tool_calls: \"tool_use\", length: \"max_tokens\", content_filter: \"refusal\" };\n\nmsg.statusCode = 200;\nmsg.payload = {\n  content: content,\n  stop_reason: stopReasonMap[choice.finish_reason] || choice.finish_reason || null,\n  usage: res.usage ? { input_tokens: res.usage.prompt_tokens, output_tokens: res.usage.completion_tokens } : undefined\n};\nmsg.raw = (content.find(function (b) { return b.type === \"text\"; }) || {}).text;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1600,
+        "y": 500,
+        "wires": [
+            [
+                "402b13fef1da0bf8",
+                "1682f016ada51505",
+                "9ae303c07d9aaae3"
+            ]
+        ]
+    },
+    {
+        "id": "8a0281744c59eff4",
+        "type": "tab",
+        "label": "CAD N'Done KI – ChatGPT",
+        "disabled": false,
+        "info": "",
+        "env": [
+            {
+                "name": "AI_PROMPT_ENABLED",
+                "type": "bool",
+                "value": "true"
+            },
+            {
+                "name": "AI_SYSTEM_PROMPT",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "OPENAI_API_KEY",
+                "type": "cred",
+                "value": ""
+            },
+            {
+                "name": "OPENAI_MODEL",
+                "type": "str",
+                "value": "gpt-4o"
+            }
+        ]
+    },
+    {
+        "id": "5414fc71799af913",
+        "type": "http in",
+        "z": "8a0281744c59eff4",
+        "name": "CAD N'Done Assistant Request (ChatGPT)",
+        "url": "/rest/cadndone/assistant/chatgpt",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 640,
+        "wires": [
+            [
+                "6953e083fb38b866",
+                "0ad288ecd109545d"
+            ]
+        ]
+    },
+    {
+        "id": "6953e083fb38b866",
+        "type": "debug",
+        "z": "8a0281744c59eff4",
+        "name": "debug ChatGPT request",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 320,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "0ad288ecd109545d",
+        "type": "function",
+        "z": "8a0281744c59eff4",
+        "name": "Prüfen und Settings holen",
+        "func": "\n// Nicht mehr von globalen App-Settings oder einer CMS-Datenbankabfrage\n// abhaengig - stattdessen lokale, im Tab selbst einstellbare\n// Umgebungsvariablen (siehe Tab-Eigenschaften, Reiter\n// \"Umgebungsvariablen\": AI_PROMPT_ENABLED, AI_SYSTEM_PROMPT).\n\n// Erster Zug: body.message (einzelner String). Ab dem zweiten Zug einer\n// agentischen Tool-Use-Konversation schickt das Frontend die komplette\n// Historie als body.messages (Array von Anthropic-MessageParam) mit.\nconst body = msg.req.body ?? {};\nconst clientMessages = Array.isArray(body.messages) ? body.messages : null;\nconst message = typeof body.message === \"string\" ? body.message.trim() : undefined;\n\nif (!clientMessages && !message) {\n  msg.statusCode = 400;\n  msg.payload = { error: \"message oder messages fehlt.\" };\n  return [null, msg];\n}\n\nif (!env.get(\"AI_PROMPT_ENABLED\")) {\n  msg.statusCode = 400;\n  msg.payload = { error: \"nicht aktiviert\" };\n  return [null, msg];\n}\n\n\n// Zeitstempel erzeugen\nconst now = new Date();\nmsg.created = now.toISOString(); // → volle UTC-Zeit\n\nmsg.message = message;\nmsg.clientMessages = clientMessages;\nmsg.tools = Array.isArray(body.tools) ? body.tools : undefined;\n\nmsg.locale = body.locale?.trim();\nmsg.system_prompt = env.get(\"AI_SYSTEM_PROMPT\") || \"\";\n\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 640,
+        "wires": [
+            [
+                "5f433107f3e0e90f"
+            ],
+            [
+                "d67ab47dd1a12a4c",
+                "37480cea755c665c"
+            ]
+        ]
+    },
+    {
+        "id": "d67ab47dd1a12a4c",
+        "type": "http response",
+        "z": "8a0281744c59eff4",
+        "name": "HTTP Fehler",
+        "statusCode": "",
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+        },
+        "x": 910,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "37480cea755c665c",
+        "type": "debug",
+        "z": "8a0281744c59eff4",
+        "name": "debug ChatGPT Fehler",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "5f433107f3e0e90f",
+        "type": "function",
+        "z": "8a0281744c59eff4",
+        "name": "GPT Prompt vorbereiten",
+        "func": "\n\nmsg.user_prompt =msg.message\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 440,
+        "wires": [
+            [
+                "666f59e4397ce989"
+            ]
+        ]
+    },
+    {
+        "id": "a7c69155536266ee",
+        "type": "http in",
+        "z": "8a0281744c59eff4",
+        "name": "CAD N'Done Assistant Preflight (CORS, ChatGPT)",
+        "url": "/rest/cadndone/assistant/chatgpt",
+        "method": "options",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 900,
+        "wires": [
+            [
+                "022f4ad56fba9eb2"
+            ]
+        ]
+    },
+    {
+        "id": "022f4ad56fba9eb2",
+        "type": "function",
+        "z": "8a0281744c59eff4",
+        "name": "CORS-Header setzen",
+        "func": "// Das Frontend (CAD N'Done, eigener Ursprung) ruft diesen Endpunkt per\n// fetch() mit Content-Type: application/json auf - der Browser schickt dem\n// eigentlichen POST daher einen OPTIONS-Preflight voraus, der hier\n// unabhaengig beantwortet werden muss, sonst blockiert der Browser den POST\n// mit einem CORS-Fehler, bevor er ueberhaupt gesendet wird.\nmsg.statusCode = 204;\nmsg.headers = {\n    \"Access-Control-Allow-Origin\": \"*\",\n    \"Access-Control-Allow-Methods\": \"POST, OPTIONS\",\n    \"Access-Control-Allow-Headers\": \"Content-Type\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 900,
+        "wires": [
+            [
+                "6bec32293469f986"
+            ]
+        ]
+    },
+    {
+        "id": "6bec32293469f986",
+        "type": "http response",
+        "z": "8a0281744c59eff4",
+        "name": "Preflight-Antwort",
+        "statusCode": "",
+        "headers": {},
+        "x": 620,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "402b13fef1da0bf8",
+        "type": "http response",
+        "z": "8a0281744c59eff4",
+        "name": "Antwort senden",
+        "statusCode": "",
+        "headers": {
+            "Access-Control-Allow-Origin": "*"
+        },
+        "x": 2320,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "1682f016ada51505",
+        "type": "debug",
+        "z": "8a0281744c59eff4",
+        "name": "debug ChatGPT Antwort",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2270,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "9ae303c07d9aaae3",
+        "type": "switch",
+        "z": "8a0281744c59eff4",
+        "name": "",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "200",
+                "vt": "num"
+            },
+            {
+                "t": "neq",
+                "v": "200",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 2100,
+        "y": 620,
+        "wires": [
+            [
+                "c366cf58b5e7e06c"
+            ],
+            [
+                "15821f0d671fd5cb"
+            ]
+        ]
+    },
+    {
+        "id": "c366cf58b5e7e06c",
+        "type": "function",
+        "z": "8a0281744c59eff4",
+        "name": "SET LOG",
+        "func": "\nconst cmsg={\n    msgno:1000,\n    topic:\"CHATGPT RETURN\",\n    functionName:\"CHATGPT REQUEST\",\n    msg:{\n        text:\"PAYLOAD\",\n        payload: {\n            text:msg.raw,\n            question: msg.message\n            }\n    }\n}\nmsg=cmsg;\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2350,
+        "y": 580,
+        "wires": [
+            [
+                "20cc9641dfd7e47e"
+            ]
+        ]
+    },
+    {
+        "id": "15821f0d671fd5cb",
+        "type": "function",
+        "z": "8a0281744c59eff4",
+        "name": "SET LOG",
+        "func": "\nconst cmsg={\n    msgno:1000,\n    topic:\"CHATGPT ERROR\",\n    functionName:\"CHATGPT REQUEST\",\n    msg:{\n        text:\"PAYLOAD\",\n        payload: {\n            text:msg.raw,\n            question: msg.message\n            }\n    }\n}\nmsg=cmsg;\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2350,
+        "y": 680,
+        "wires": [
+            [
+                "20cc9641dfd7e47e"
+            ]
+        ]
+    },
+    {
+        "id": "20cc9641dfd7e47e",
+        "type": "flogger",
+        "z": "8a0281744c59eff4",
+        "name": "ChatGPT-LOG",
+        "logfile": "ChatGPT.log",
+        "inputchoice": "fullmsg",
+        "inputobject": "",
+        "inputobjectType": "msg",
+        "inputmoustache": "",
+        "loglevel": "INFO",
+        "logconfig": "8534e23c.037bc",
+        "sendpane": "",
+        "x": 2650,
+        "y": 630,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8534e23c.037bc",
+        "type": "config-log",
+        "logname": "standard-logging",
+        "logdir": "/floggerlogs/",
+        "stamp": "utc",
+        "logstyle": "json",
+        "logrotate": true,
+        "logcompress": true,
+        "logrotatecount": "5",
+        "logsize": "1000"
+    }
+]

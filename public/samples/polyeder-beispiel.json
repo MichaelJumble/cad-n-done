@@ -1,0 +1,158 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "os_polyhedron",
+        "id": "polyBeispiel1",
+        "x": 40,
+        "y": 40,
+        "inputs": {
+          "POINTS": {
+            "block": {
+              "type": "lists_create_with",
+              "id": "punkteListe",
+              "extraState": { "itemCount": 5 },
+              "inputs": {
+                "ADD0": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "punkt0",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "p0x", "fields": { "NUM": 0 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "p0y", "fields": { "NUM": 0 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "p0z", "fields": { "NUM": 0 } } }
+                    }
+                  }
+                },
+                "ADD1": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "punkt1",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "p1x", "fields": { "NUM": 20 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "p1y", "fields": { "NUM": 0 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "p1z", "fields": { "NUM": 0 } } }
+                    }
+                  }
+                },
+                "ADD2": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "punkt2",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "p2x", "fields": { "NUM": 20 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "p2y", "fields": { "NUM": 20 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "p2z", "fields": { "NUM": 0 } } }
+                    }
+                  }
+                },
+                "ADD3": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "punkt3",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "p3x", "fields": { "NUM": 0 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "p3y", "fields": { "NUM": 20 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "p3z", "fields": { "NUM": 0 } } }
+                    }
+                  }
+                },
+                "ADD4": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "punkt4",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "p4x", "fields": { "NUM": 10 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "p4y", "fields": { "NUM": 10 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "p4z", "fields": { "NUM": 20 } } }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "FACES": {
+            "block": {
+              "type": "lists_create_with",
+              "id": "flaechenListe",
+              "extraState": { "itemCount": 5 },
+              "inputs": {
+                "ADD0": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "flaeche0",
+                    "extraState": { "itemCount": 4 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "f0a", "fields": { "NUM": 0 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "f0b", "fields": { "NUM": 1 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "f0c", "fields": { "NUM": 2 } } },
+                      "ADD3": { "shadow": { "type": "math_number", "id": "f0d", "fields": { "NUM": 3 } } }
+                    }
+                  }
+                },
+                "ADD1": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "flaeche1",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "f1a", "fields": { "NUM": 0 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "f1b", "fields": { "NUM": 4 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "f1c", "fields": { "NUM": 1 } } }
+                    }
+                  }
+                },
+                "ADD2": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "flaeche2",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "f2a", "fields": { "NUM": 1 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "f2b", "fields": { "NUM": 4 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "f2c", "fields": { "NUM": 2 } } }
+                    }
+                  }
+                },
+                "ADD3": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "flaeche3",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "f3a", "fields": { "NUM": 2 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "f3b", "fields": { "NUM": 4 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "f3c", "fields": { "NUM": 3 } } }
+                    }
+                  }
+                },
+                "ADD4": {
+                  "block": {
+                    "type": "lists_create_with",
+                    "id": "flaeche4",
+                    "extraState": { "itemCount": 3 },
+                    "inputs": {
+                      "ADD0": { "shadow": { "type": "math_number", "id": "f4a", "fields": { "NUM": 3 } } },
+                      "ADD1": { "shadow": { "type": "math_number", "id": "f4b", "fields": { "NUM": 4 } } },
+                      "ADD2": { "shadow": { "type": "math_number", "id": "f4c", "fields": { "NUM": 0 } } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "cadium": {
+    "projectName": "Polyeder-Beispiel (Pyramide)",
+    "counter": "000"
+  }
+}

@@ -1,0 +1,30 @@
+Schriften fuer OpenSCADs text()/3D-Text-Block (siehe src/render/fonts.ts).
+
+Liberation Sans/Serif/Mono (Regular)
+  Copyright (c) 2012 Red Hat, Inc.
+  Lizenz: SIL Open Font License, Version 1.1
+  Volltext: https://scripts.sil.org/OFL
+
+DejaVu Sans / DejaVu Sans Mono
+  Copyright (c) 2003 by Bitstream, Inc. Bitstream Vera is a trademark of
+  Bitstream, Inc. DejaVu-Aenderungen sind gemeinfrei (public domain).
+  Lizenz: Bitstream Vera License
+  Volltext: https://dejavu-fonts.github.io/License.html
+
+Allerta Stencil (Regular)
+  Copyright 2011 The Allerta Project Authors
+  Lizenz: SIL Open Font License, Version 1.1
+  Volltext: https://scripts.sil.org/OFL
+  Stencil-Schnitt: keine "schwebenden Inseln" in Buchstaben wie O/A/B/R —
+  fuer einfarbigen 3D-Druck/Lasercut geeignet.
+
+Black Ops One (Regular)
+  Copyright 2011 The Black Ops One Project Authors
+  Lizenz: SIL Open Font License, Version 1.1
+  Volltext: https://scripts.sil.org/OFL
+  Kraeftiger, blockiger Stencil-Look — ebenfalls fuer 3D-Druck geeignet.
+
+Alle Lizenzen erlauben freie Nutzung, Kopie und Weitergabe (auch gebuendelt
+in dieser Anwendung); bezogen aus den Debian-Paketen fonts-liberation und
+fonts-dejavu-core sowie aus dem Google-Fonts-Repository (github.com/
+google/fonts, ofl/allertastencil, ofl/blackopsone).

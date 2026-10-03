@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAD N'Done - Tutorials</title>
+    <script>
+      // Gleiches Theme wie im Hauptfenster, gleicher localStorage-Key (siehe
+      // startcadndone.html/src/ui/theme.ts) - so frueh wie moeglich, damit die Seite
+      // sofort im richtigen Farbschema erscheint statt kurz hell aufzublitzen.
+      ;(function () {
+        try {
+          var stored = localStorage.getItem('blockscad-next:theme')
+          if (stored === 'darLabels sitzen schon zu hoch: Dann ist die Annotation inkonsistent, weil ein Teil auf „letztes sichtbares Stück“ und ein Teil auf „Eintrittspunkt“ gelabelt wurde. Das Modell mittelt das,k' || stored === 'contrast') {
+            document.documentElement.dataset.theme = stored
+          }
+        } catch (e) {
+          // localStorage gesperrt (z.B. privater Modus) - Default-Theme bleibt.
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/tutorialsMain.ts"></script>
+  </body>
+</html>

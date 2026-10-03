@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAD N'Done — Phase 0 Machbarkeitspruefung</title>
+  </head>
+  <body>
+    <div id="app">
+      <h1>CAD N'Done — Phase 0: Machbarkeitspruefung</h1>
+      <p>
+        Diese Seite fuehrt vier isolierte Minimaltests aus. Ergebnisse erscheinen unten und in der
+        Browser-Konsole.
+      </p>
+
+      <section id="test-blockly">
+        <h2>1. Blockly-Workspace</h2>
+        <p class="status" data-status="blockly">wird geladen…</p>
+        <div id="blockly-div" style="height: 320px; width: 100%; border: 1px solid #ccc"></div>
+      </section>
+
+      <section id="test-openscad">
+        <h2>2. openscad-wasm: cube([1,1,1]) → STL (Hauptthread)</h2>
+        <p class="status" data-status="openscad">wird geladen…</p>
+        <pre id="openscad-output"></pre>
+      </section>
+
+      <section id="test-three">
+        <h2>3. Three.js Szene mit OrbitControls</h2>
+        <p class="status" data-status="three">wird geladen…</p>
+        <div id="three-canvas" style="height: 320px; width: 100%; border: 1px solid #ccc"></div>
+      </section>
+
+      <section id="test-treesitter">
+        <h2>4. web-tree-sitter: OpenSCAD-Grammatik parsen</h2>
+        <p class="status" data-status="treesitter">wird geladen…</p>
+        <pre id="treesitter-output"></pre>
+      </section>
+    </div>
+    <script type="module" src="/src/phase0/main.ts"></script>
+  </body>
+</html>

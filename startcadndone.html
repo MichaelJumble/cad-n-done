@@ -1,0 +1,244 @@
+<!--
+  👋 Hallo neugieriger Entwickler!
+
+  Du hast den Quellcode gefunden – gut gemacht, das machen nur die Besten.
+  CAD N'Done ist ein Blockly-basierter Editor für OpenSCAD-Modelle, komplett im
+  Browser gerendert (openscad-wasm + Three.js) — kein Server, kein Account.
+
+  Diese Software darf kostenfrei genutzt werden. Bei Weitergabe/Kopie muss
+  der Hinweis im Info-Dialog (Copyright & verwendete Open-Source-Lizenzen)
+  erhalten bleiben.
+
+  Fragen, Ideen oder einen Bug gefunden? Meld dich einfach:
+  Michael Sendrowski · michael@sendrowski.de
+
+  Viel Spaß beim Bauen! 🚀
+-->
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAD N'Done</title>
+    <script>
+      // So frueh wie moeglich (vor jedem Paint), damit der Splash sofort im
+      // richtigen Farbschema erscheint statt kurz hell aufzublitzen (FOUC).
+      // Muss zur Logik von src/ui/theme.ts (getTheme/STORAGE_KEY) passen.
+      ;(function () {
+        try {
+          var stored = localStorage.getItem('blockscad-next:theme')
+          if (stored === 'dark' || stored === 'contrast') {
+            document.documentElement.dataset.theme = stored
+          }
+        } catch (e) {
+          // localStorage gesperrt (z.B. privater Modus) - Default-Theme bleibt.
+        }
+      })()
+    </script>
+    <style>
+      /* Eigenstaendige Splash-Styles, unabhaengig von src/ui/layout.css (das
+         laedt erst als Teil des JS-Modulgraphen) - Farbwerte je Theme sind
+         hier daher bewusst dupliziert und muessen manuell synchron zu dessen
+         [data-theme]-Variablen gehalten werden. */
+      #splash {
+        position: fixed;
+        inset: 0;
+        /* Zusaetzlich zu inset:0 explizit die Groesse setzen: auf manchen
+           mobilen Browsern (v.a. iOS Safari) bleibt ein position:fixed-
+           Element beim Ein-/Ausblenden der Adressleiste an seiner alten
+           Groesse/Position "haengen" - width/height mit dvw/dvh (dynamic
+           viewport, folgt dem TATSAECHLICH sichtbaren Bereich) faengt das
+           ab. vw/vh zuerst als Fallback fuer Browser ohne dvh/dvw-
+           Unterstuetzung (die zweite, unbekannte Deklaration wird dort
+           ignoriert, die erste bleibt aktiv). */
+        width: 100vw;
+        height: 100vh;
+        width: 100dvw;
+        height: 100dvh;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        background: radial-gradient(circle at 50% 35%, #f4f5f7 0%, #e4e6ea 60%, #d7d9df 100%);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        transition: opacity 420ms ease;
+      }
+      html[data-theme='dark'] #splash {
+        background: radial-gradient(circle at 50% 35%, #1a1b1f 0%, #131417 60%, #0b0c0e 100%);
+      }
+      html[data-theme='contrast'] #splash {
+        background: #000000;
+      }
+      #splash.splash-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .splash-cube-wrap {
+        width: 64px;
+        height: 64px;
+        perspective: 300px;
+      }
+      .splash-cube {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        animation: splash-spin 5s linear infinite;
+      }
+      @keyframes splash-spin {
+        from {
+          transform: rotateX(-25deg) rotateY(0deg);
+        }
+        to {
+          transform: rotateX(-25deg) rotateY(360deg);
+        }
+      }
+      .splash-face {
+        position: absolute;
+        inset: 0;
+        border: 1.5px solid #3b6fe0;
+        background: #3b6fe01a;
+        box-shadow: 0 0 24px #3b6fe033;
+      }
+      html[data-theme='dark'] .splash-face,
+      html[data-theme='contrast'] .splash-face {
+        border-color: #6c9bff;
+        background: #6c9bff1a;
+        box-shadow: 0 0 24px #6c9bff44;
+      }
+      .splash-face.front {
+        transform: translateZ(32px);
+      }
+      .splash-face.back {
+        transform: rotateY(180deg) translateZ(32px);
+      }
+      .splash-face.right {
+        transform: rotateY(90deg) translateZ(32px);
+      }
+      .splash-face.left {
+        transform: rotateY(-90deg) translateZ(32px);
+      }
+      .splash-face.top {
+        transform: rotateX(90deg) translateZ(32px);
+      }
+      .splash-face.bottom {
+        transform: rotateX(-90deg) translateZ(32px);
+      }
+      .splash-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #1a1a1a;
+      }
+      html[data-theme='dark'] .splash-title,
+      html[data-theme='contrast'] .splash-title {
+        color: #e8e8ea;
+      }
+      .splash-tagline {
+        margin-top: -0.85rem;
+        font-size: 0.8rem;
+        color: #1a1a1a;
+        opacity: 0.6;
+      }
+      html[data-theme='dark'] .splash-tagline,
+      html[data-theme='contrast'] .splash-tagline {
+        color: #e8e8ea;
+      }
+      .splash-progress {
+        width: 180px;
+        height: 4px;
+        border-radius: 999px;
+        background: #1a1a1a1a;
+        overflow: hidden;
+      }
+      html[data-theme='dark'] .splash-progress,
+      html[data-theme='contrast'] .splash-progress {
+        background: #ffffff1a;
+      }
+      .splash-progress-fill {
+        height: 100%;
+        width: 12%;
+        border-radius: inherit;
+        background: #3b6fe0;
+        transition: width 420ms ease;
+      }
+      html[data-theme='dark'] .splash-progress-fill,
+      html[data-theme='contrast'] .splash-progress-fill {
+        background: #6c9bff;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .splash-cube {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="splash" role="status" aria-live="polite" aria-label="CAD N'Done wird geladen…">
+      <div class="splash-cube-wrap" aria-hidden="true">
+        <div class="splash-cube">
+          <div class="splash-face front"></div>
+          <div class="splash-face back"></div>
+          <div class="splash-face right"></div>
+          <div class="splash-face left"></div>
+          <div class="splash-face top"></div>
+          <div class="splash-face bottom"></div>
+        </div>
+      </div>
+      <div class="splash-title">CAD N'Done</div>
+      <div class="splash-tagline" id="splash-status">Fenster wird eingerichtet…</div>
+      <div class="splash-progress">
+        <div class="splash-progress-fill" id="splash-progress-fill"></div>
+      </div>
+    </div>
+    <!-- Vor #app, nicht danach: #app bekommt per CSS height:100% (siehe layout.css),
+         das gilt auch leer/ungemountet - stuende der Hinweis dahinter, muesste man
+         erst eine volle Bildschirmhoehe scrollen, um ihn ueberhaupt zu sehen. -->
+    <noscript>
+      <!-- Ohne JS wird hideSplash() (main.ts) nie aufgerufen - der Splash
+           stuende sonst fuer immer ueber diesem Hinweis (position:fixed,
+           z-index:9999). Nur wirksam, wenn Scripting tatsaechlich aus ist. -->
+      <style>
+        #splash {
+          display: none !important;
+        }
+      </style>
+      <div
+        style="
+          max-width: 560px;
+          margin: 4rem auto;
+          padding: 2rem;
+          font-family: system-ui, sans-serif;
+          text-align: center;
+          color: #1f2937;
+        "
+      >
+        <p style="margin: 0 0 0.75rem">
+          <strong
+            >Diese Seite benötigt JavaScript, um zu funktionieren. Bitte aktiviere JavaScript in
+            deinem Browser.</strong
+          >
+        </p>
+        <p style="margin: 0 0 0.75rem">
+          This page requires JavaScript to work. Please enable JavaScript in your browser.
+        </p>
+        <p style="margin: 0 0 0.75rem">
+          Deze pagina heeft JavaScript nodig om te werken. Schakel JavaScript in je browser in.
+        </p>
+        <p style="margin: 0">
+          Cette page nécessite JavaScript pour fonctionner. Veuillez activer JavaScript dans votre
+          navigateur.
+        </p>
+      </div>
+    </noscript>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

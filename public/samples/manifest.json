@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Feature-Showcase",
+    "category": "Grundlagen",
+    "file": "feature-showcase.json",
+    "description": "Übersicht mehrerer Bausteine (Verschieben, Würfel, Farbe) in einem Projekt."
+  },
+    {
+    "name": "Foto Vorlage",
+    "category": "Grundlagen",
+    "file": "PHOTO-Zeichnen_001.json",
+    "description": "Grundfläche mittels Photo nachzeichen in 3D Umwandeln."
+  },
+      {
+    "name": "Foto Vorlage II",
+    "category": "Grundlagen",
+    "file": "PHOTO-Zeichnen-II_001.json",
+    "description": "Vorlage zum testen und nachmessen der Nachzeichnen-Funktion."
+  },
+  
+  {
+    "name": "Polyeder-Beispiel (Pyramide)",
+    "category": "Grundlagen",
+    "file": "polyeder-beispiel.json",
+    "description": "Eine quadratische Pyramide, gebaut mit dem Polyeder-Baustein."
+  },
+    {
+    "name": "Customizer Einfach",
+    "category": "Customizer",
+    "file": "Custermize_Simple_001.json",
+    "video": "Custermize_Simple_000_tab.webm",
+    "description": "Erstellt einen einfachen Würfel und Zylinder."
+  },
+  
+  {
+    "name": "Customizer Beispiel Box",
+    "category": "Customizer",
+    "file": "customize_box_001.json",
+    "video": "customize_box_use.mp4",
+    "description": "Erstellt eine Box mit Deckel mit anpassbaren Werten im Preview."
+  },
+  {
+    "name": "KI Agent Atomium",
+    "category": "KI-Agent",
+    "file": "atomium_stand_claude.json",
+    "video": "atomium_2.webm",
+    "description": "KI erstelltes Atomium und Stand"
+  },
+  {
+    "name": "OpenSCAD ",
+    "category": "OpenScad Code",
+    "file": "OSCAD_GEAR_SAMPLE_001.json",
+    "description": "Einbinden von OpenSCad Source in Module zur einfachen Nutzung."
+  }
+
+]
