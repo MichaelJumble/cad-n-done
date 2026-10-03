@@ -179,6 +179,27 @@
         position: relative;
       }
 
+      .hero-ribbon {
+        position: absolute;
+        top: 2.1rem;
+        right: -4.4rem;
+        transform: rotate(45deg);
+        background: var(--primary-dark);
+        color: #fff;
+        padding: 0.55rem 4.8rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+        transition: background 0.15s ease;
+      }
+      .hero-ribbon:hover {
+        background: var(--accent-dark);
+      }
+
       .hero-badge {
         display: inline-block;
         background: var(--bg-muted);
@@ -329,6 +350,46 @@
         border-radius: var(--radius);
         padding: 1.5rem;
         transition: background 0.2s;
+      }
+
+      /* ── OPEN-SOURCE-ANKÜNDIGUNG ── */
+      #opensource {
+        background: linear-gradient(160deg, var(--primary-dark) 0%, #141a1f 100%);
+        color: #fff;
+        text-align: center;
+      }
+
+      .announce-eyebrow {
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+        margin-bottom: 1rem;
+      }
+
+      .announce-title {
+        font-size: clamp(2rem, 4.8vw, 3.2rem);
+        font-weight: 800;
+        line-height: 1.15;
+        margin: 0 auto 1.2rem;
+        max-width: 780px;
+        letter-spacing: -0.01em;
+      }
+
+      .announce-sub {
+        font-size: clamp(1.05rem, 2vw, 1.35rem);
+        color: #e4e7ea;
+        max-width: 640px;
+        margin: 0 auto 1.6rem;
+        font-weight: 500;
+      }
+
+      .announce-body {
+        color: #aeb4ba;
+        max-width: 620px;
+        margin: 0 auto 2.4rem;
+        font-size: 1rem;
       }
 
       .problem-card:hover {
@@ -813,6 +874,12 @@
         .hero::before {
           background-size: 78% auto;
         }
+        .hero-ribbon {
+          top: 1.3rem;
+          right: -3.6rem;
+          padding: 0.4rem 3.6rem;
+          font-size: 0.85rem;
+        }
         section {
           padding: 3rem 1.2rem;
         }
@@ -860,6 +927,14 @@
 
     <!-- HERO -->
     <section class="hero">
+      <a
+        href="https://github.com/MichaelJumble/cad-n-done"
+        class="hero-ribbon"
+        target="_blank"
+        rel="noopener"
+        data-i18n="hero.openSource"
+        >Open Source</a
+      >
       <div class="hero-inner">
         <p class="hero-badge">4 Your Design:</p>
         <h1 class="hero-logo">
@@ -917,6 +992,33 @@
             </p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- OPEN SOURCE -->
+    <section id="opensource">
+      <div class="container">
+        <p class="announce-eyebrow" data-i18n="opensource.eyebrow">Ankündigung</p>
+        <h2 class="announce-title" data-i18n="opensource.title">
+          CAD N'Done ist ab heute Open Source.
+        </h2>
+        <p class="announce-sub" data-i18n="opensource.sub">
+          Früher als geplant: Das Projektteam hat sich entschieden, CAD N'Done schon jetzt mit der
+          ganzen Welt zu teilen.
+        </p>
+        <p class="announce-body" data-i18n="opensource.body">
+          Statt wie ursprünglich vorgesehen erst zu einem späteren Meilenstein zu öffnen, steht der
+          komplette Quellcode ab sofort frei auf GitHub – zum Mitbauen, Lernen und
+          Weiterentwickeln, Zeile für Zeile einsehbar.
+        </p>
+        <a
+          href="https://github.com/MichaelJumble/cad-n-done"
+          class="btn-primary"
+          target="_blank"
+          rel="noopener"
+          data-i18n="opensource.cta"
+          >Code auf GitHub ansehen</a
+        >
       </div>
     </section>
 
@@ -1080,6 +1182,13 @@
               Kugel, Spiegeln, RGB-Farbe sowie die neuen 2D-Formen (Kreis, Quadrat, Extrudieren,
               Verjüngen) werden beim Import aus BlockSCAD jetzt korrekt übernommen statt
               übersprungen zu werden.
+            </div>
+
+            <div class="update-entry" data-i18n="update.entry24">
+              <strong>03.10.2026 – CAD N'Done ist jetzt Open Source</strong>
+              Früher als geplant hat sich das Team entschieden, den kompletten Quellcode schon
+              jetzt frei auf GitHub zu veröffentlichen – offen für alle, die mitbauen, lernen oder
+              einfach reinschauen wollen.
             </div>
 
             <div class="update-entry"><br /><br /><br /><br /><br /><br /><br /></div>
@@ -1518,8 +1627,8 @@
         </p>
         <div class="team-layout">
           <img
-            src="https://do-n-done.de/image1499-3.png"
-            alt="Do N'Done Entwicklerteam"
+            src="/images/team.png"
+            alt="CAD N'Done Entwicklerteam"
             id="teamImage"
             class="team-image"
           />
@@ -1618,6 +1727,7 @@
           'hero.sub':
             'Parametrische 3D-Modelle per Klick zusammenstecken statt Code zu tippen – komplett im Browser gerendert. Kein Server, kein Account, keine Installation. Einfach loslegen.',
           'hero.discover': 'Funktionen entdecken',
+          'hero.openSource': 'Open Source',
           'warum.label': "Warum CAD N'Done?",
           'warum.title': 'Bauen statt Tippen. Sofort. Kostenlos.',
           'warum.desc':
@@ -1680,7 +1790,16 @@
             '<strong>28.09.2026 – Neue 2D-Formen-Kategorie</strong>Kreis, Quadrat, Extrudieren, Rotations-Extrudieren und Verjüngen (taper) stehen jetzt als eigene Blöcke zur Verfügung – praktisch für eigene 2D-Konstruktionen und als Grundlage für den Import älterer BlockSCAD-Projekte. Reine 2D-Flächen werden im Viewer automatisch hauchdünn dargestellt, ohne dass sich am erzeugten Code etwas ändert.',
           'update.entry23':
             '<strong>28.09.2026 – BlockSCAD-Import deutlich erweitert</strong>Kugel, Spiegeln, RGB-Farbe sowie die neuen 2D-Formen (Kreis, Quadrat, Extrudieren, Verjüngen) werden beim Import aus BlockSCAD jetzt korrekt übernommen statt übersprungen zu werden.',
+          'update.entry24':
+            "<strong>03.10.2026 – CAD N'Done ist jetzt Open Source</strong>Früher als geplant hat sich das Team entschieden, den kompletten Quellcode schon jetzt frei auf GitHub zu veröffentlichen – offen für alle, die mitbauen, lernen oder einfach reinschauen wollen.",
           'update.hint': 'Zum Weiterlesen klicken',
+          'opensource.eyebrow': 'Ankündigung',
+          'opensource.title': "CAD N'Done ist ab heute Open Source.",
+          'opensource.sub':
+            "Früher als geplant: Das Projektteam hat sich entschieden, CAD N'Done schon jetzt mit der ganzen Welt zu teilen.",
+          'opensource.body':
+            'Statt wie ursprünglich vorgesehen erst zu einem späteren Meilenstein zu öffnen, steht der komplette Quellcode ab sofort frei auf GitHub – zum Mitbauen, Lernen und Weiterentwickeln, Zeile für Zeile einsehbar.',
+          'opensource.cta': 'Code auf GitHub ansehen',
           'funktionen.label': "Was CAD N'Done kann",
           'funktionen.title': 'Vom ersten Block bis zum fertigen Modell',
           'funktionen.desc':
@@ -1854,6 +1973,7 @@
           'hero.sub':
             'Snap parametric 3D models together with clicks instead of typing code – rendered entirely in your browser. No server, no account, no installation. Just get started.',
           'hero.discover': 'Discover features',
+          'hero.openSource': 'Open Source',
           'warum.label': "Why CAD N'Done?",
           'warum.title': 'Build instead of type. Instantly. Free.',
           'warum.desc':
@@ -1915,7 +2035,16 @@
             '<strong>2026-09-28 – New 2D shapes category</strong>Circle, square, extrude, rotate-extrude and taper are now available as their own blocks – handy for your own 2D designs and as the basis for importing older BlockSCAD projects. Pure 2D shapes are now shown paper-thin in the viewer automatically, without changing the generated code.',
           'update.entry23':
             '<strong>2026-09-28 – BlockSCAD import significantly expanded</strong>Sphere, mirror, RGB color, and the new 2D shapes (circle, square, extrude, taper) are now correctly picked up when importing from BlockSCAD instead of being skipped.',
+          'update.entry24':
+            "<strong>2026-10-03 – CAD N'Done is now open source</strong>Ahead of schedule, the team decided to release the complete source code on GitHub right now – open for anyone to build on, learn from, or just take a look under the hood.",
           'update.hint': 'Click to continue reading',
+          'opensource.eyebrow': 'Announcement',
+          'opensource.title': "CAD N'Done is open source, starting today.",
+          'opensource.sub':
+            "Ahead of schedule: the project team decided to share CAD N'Done with the whole world right now.",
+          'opensource.body':
+            'Instead of waiting for a later milestone as originally planned, the complete source code is now freely available on GitHub – to build on, learn from, and extend, readable line by line.',
+          'opensource.cta': 'View the code on GitHub',
           'funktionen.label': "What CAD N'Done can do",
           'funktionen.title': 'From the first block to the finished model',
           'funktionen.desc':
